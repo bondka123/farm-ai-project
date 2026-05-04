@@ -63,24 +63,31 @@ export class UserProfileComponent implements OnInit {
     this.message = 'Opening system camera... Please look at the camera.';
     this.isError = false;
 
-    this.faceService.registerFace(this.currentEmployee.id).subscribe((res: any) => {
+    this.faceService.registerFace().subscribe((res: any) => {
       this.loading = false;
-      if (res.status === 'success') {
-        this.message = '✅ Face data saved successfully!';
-        this.loadCurrentEmployee();
-      } else {
-        this.message = res.message || '❌ Operation failed.';
-        this.isError = true;
-      }
+      this.message = '✅ Face data saved successfully!';
+      this.loadCurrentEmployee();
     }, err => {
       this.loading = false;
-      this.message = 'Error connecting to face recognition service.';
+      this.message = err.error?.error || 'Error connecting to face recognition service.';
       this.isError = true;
     });
   }
 
   updateFace() {
-    this.registerFace(); // Update is the same logic as register (overwrites)
+    this.loading = true;
+    this.message = 'Opening system camera... Please look at the camera.';
+    this.isError = false;
+
+    this.faceService.updateFace().subscribe((res: any) => {
+      this.loading = false;
+      this.message = '✅ Face data updated successfully!';
+      this.loadCurrentEmployee();
+    }, err => {
+      this.loading = false;
+      this.message = err.error?.error || 'Error updating face recognition data.';
+      this.isError = true;
+    });
   }
 
   deleteFace() {
@@ -88,7 +95,7 @@ export class UserProfileComponent implements OnInit {
     if (!confirm('Are you sure you want to delete your biometric data?')) return;
 
     this.loading = true;
-    this.faceService.deleteFace(this.currentEmployee.id).subscribe((res: any) => {
+    this.faceService.deleteFace().subscribe((res: any) => {
       this.loading = false;
       this.message = 'Face data deleted.';
       this.loadCurrentEmployee();

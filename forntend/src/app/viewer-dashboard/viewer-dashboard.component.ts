@@ -12,8 +12,9 @@ export class ViewerDashboardComponent implements OnInit {
 
   employees: Employee[] = [];
   departments: any[] = [];
-  searchQuery: string = '';
   loading: boolean = false;
+  searchQuery: string = '';
+  currentView: 'dashboard' | 'settings' = 'dashboard';
 
   constructor(
     private http: HttpClient,
@@ -90,8 +91,15 @@ export class ViewerDashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  switchView(view: 'dashboard' | 'settings') {
+    this.currentView = view;
+  }
+
   scrollTo(id: string) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    this.currentView = 'dashboard';
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }
 }

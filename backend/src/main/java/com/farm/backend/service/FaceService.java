@@ -1,111 +1,179 @@
 package com.farm.backend.service;
 
+import com.farm.backend.entity.Employee;
+import com.farm.backend.entity.User;
+import com.farm.backend.exception.FaceException;
+import com.farm.backend.repository.EmployeeRepository;
+import com.farm.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class FaceService {
 
-    public Map<String, Object> registerFace(Long employeeId) {
-        try {
-            String rootPath = System.getProperty("user.dir");
-            File aiDir = new File(rootPath, "ai_system");
-            
-            // 🔥 FIX: Si on est dans le dossier 'backend', on remonte d'un cran
-            if (!aiDir.exists()) {
-                File parent = new File(rootPath).getParentFile();
-                aiDir = new File(parent, "ai_system");
-            }
+    private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
 
-            if (!aiDir.exists()) {
-                return Map.of("status", "error", "message", "Dossier 'ai_system' introuvable à : " + aiDir.getAbsolutePath());
-            }
+    public FaceService(EmployeeRepository employeeRepository, UserRepository userRepository) {
+        this.employeeRepository = employeeRepository;
+        this.userRepository = userRepository;
+    }
 
-            ProcessBuilder pb = new ProcessBuilder(
-                "python", 
-                "register_face.py",
-                String.valueOf(employeeId)
-            );
-            
-            pb.directory(aiDir);
-            pb.inheritIO();
-            pb.start();
-            
-            return Map.of("status", "success", "message", "Face registration started");
-        } catch (Exception e) {
-            return Map.of("status", "error", "message", "Failed to start face registration: " + e.getMessage());
+    @Transactional
+    public void registerFace(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new FaceException("Utilisateur non trouvé"));
+
+        String output = runPythonScript("face_register.py", userId.toString());
+        
+        if (output == null || !output.startsWith("[")) {
+            throw new FaceException("Erreur lors de l'enregistrement du visage : sortie invalide");
         }
+
+        // Save to User
+        user.setEmbedding(output);
+        user.setFaceRegistered(true);
+        userRepository.save(user);
+
+        // Sync to Employee if exists (for attendance/tracking)
+        employeeRepository.findByEmail(user.getEmail()).stream().findFirst().ifPresent(employee -> {
+            employee.setEmbedding(output);
+            employee.setFaceRegistered(true);
+            employeeRepository.save(employee);
+        });
+    }
+
+    @Transactional
+    public void updateFace(Long userId) {
+        // Update is essentially the same as register in this context
+        registerFace(userId);
+    }
+
+    @Transactional
+    public void deleteFace(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new FaceException("Utilisateur non trouvé"));
+
+        Employee employee = employeeRepository.findByEmail(user.getEmail()).stream().findFirst()
+                .orElseThrow(() -> new FaceException("Employé non trouvé pour cet utilisateur"));
+
+        employee.setEmbedding(null);
+        employee.setFaceRegistered(false);
+        employeeRepository.save(employee);
+
+        user.setFaceRegistered(false);
+        userRepository.save(user);
+    }
+
+    public boolean getFaceStatus(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::isFaceRegistered)
+                .orElse(false);
+    }
+
+    @Transactional
+    public void registerFaceByEmployeeId(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new FaceException("Employé non trouvé"));
+
+        User user = userRepository.findByEmail(employee.getEmail())
+                .orElseThrow(() -> new FaceException("Utilisateur non trouvé pour cet employé"));
+
+        registerFace(user.getId());
+    }
+
+    @Transactional
+    public void deleteFaceByEmployeeId(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new FaceException("Employé non trouvé"));
+
+        User user = userRepository.findByEmail(employee.getEmail())
+                .orElseThrow(() -> new FaceException("Utilisateur non trouvé pour cet employé"));
+
+        deleteFace(user.getId());
     }
 
     public Map<String, Object> recognizeFace() {
+        String output = runPythonScript("recognize_face_login.py", null);
+
+        if (output == null || output.trim().isEmpty() || output.equals("NO_MATCH") || output.equals("ERROR_CAMERA")) {
+            throw new FaceException("Face login failed: identification échouée");
+        }
+
+        // Output is now an email (since we updated recognize_face_login.py)
+        return Map.of("status", "success", "email", output.trim());
+    }
+
+    private String runPythonScript(String scriptName, String arg) {
         try {
             String rootPath = System.getProperty("user.dir");
             File aiDir = new File(rootPath, "ai_system");
+            
             if (!aiDir.exists()) {
                 aiDir = new File(new File(rootPath).getParentFile(), "ai_system");
             }
-
-            ProcessBuilder pb = new ProcessBuilder("python", "recognize_face_login.py");
-            pb.directory(aiDir);
-            pb.redirectErrorStream(true);
-
-            Process process;
-            try {
-                process = pb.start();
-            } catch (java.io.IOException e) {
-                System.err.println("[FACE LOGIN AI] Failed to start python, retrying with py -3: " + e.getMessage());
-                pb = new ProcessBuilder("py", "-3", "recognize_face_login.py");
-                pb.directory(aiDir);
-                pb.redirectErrorStream(true);
-                process = pb.start();
+            
+            System.out.println("DEBUG: AI Directory determined as: " + aiDir.getAbsolutePath());
+            File scriptFile = new File(aiDir, scriptName);
+            if (!scriptFile.exists()) {
+                System.err.println("ERROR: Script not found at " + scriptFile.getAbsolutePath());
+                return null;
             }
 
-            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
+            ProcessBuilder pb;
+            if (arg != null) {
+                pb = new ProcessBuilder("python", "-u", scriptFile.getAbsolutePath(), arg);
+            } else {
+                pb = new ProcessBuilder("python", "-u", scriptFile.getAbsolutePath());
+            }
+            
+            pb.directory(aiDir);
+            // pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+            
+            StringBuilder stderr = new StringBuilder();
+            new Thread(() -> {
+                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    String line;
+                    while ((line = errorReader.readLine()) != null) {
+                        System.err.println("PYTHON [stderr] " + scriptName + ": " + line);
+                        stderr.append(line).append("\n");
+                    }
+                } catch (Exception e) {}
+            }).start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
-            Long employeeId = null;
-
+            String lastLine = null;
             while ((line = reader.readLine()) != null) {
-                System.out.println("[FACE LOGIN AI] " + line);
-                String trimmed = line.trim();
-
-                if (trimmed.matches("\\d+")) {
-                    try {
-                        employeeId = Long.valueOf(trimmed);
-                        System.out.println("[FACE LOGIN AI] Found Employee ID: " + employeeId);
-                    } catch (Exception e) {
-                        System.err.println("[FACE LOGIN AI] Failed to parse numeric ID: " + e.getMessage());
-                    }
-                } else if (trimmed.contains("ID=")) {
-                    try {
-                        String idStr = trimmed.split("ID=")[1].trim();
-                        employeeId = Long.valueOf(idStr);
-                        System.out.println("[FACE LOGIN AI] Found Employee ID: " + employeeId);
-                    } catch (Exception e) {
-                        System.err.println("[FACE LOGIN AI] Failed to parse ID= line: " + e.getMessage());
-                    }
+                System.out.println("PYTHON [stdout] " + scriptName + ": " + line);
+                if (!line.trim().isEmpty()) {
+                    lastLine = line;
                 }
             }
-
+            
             int exitCode = process.waitFor();
-            System.out.println("[FACE LOGIN AI] Process exited with code: " + exitCode);
+            System.out.println("PYTHON EXIT CODE [" + scriptName + "]: " + exitCode);
 
-            if (exitCode == 0 && employeeId != null) {
-                return Map.of("status", "success", "employeeId", employeeId, "confidence", 0.95);
-            } else if (exitCode == 0) {
-                return Map.of("status", "error", "message", "Face login succeeded but no ID was returned");
-            } else {
-                String errorMsg = "Script error (code " + exitCode + ")";
-                System.out.println("[FACE LOGIN AI] Recognition failed: " + errorMsg);
-                return Map.of("status", "error", "message", errorMsg);
+            if (exitCode != 0) {
+                throw new FaceException("Python script failed with exit code " + exitCode + ". Stderr: " + stderr.toString());
             }
 
+            return lastLine;
+        } catch (FaceException e) {
+            throw e;
         } catch (Exception e) {
-            return Map.of("status", "error", "message", "System error: " + e.getMessage());
+            System.err.println("Error running python script " + scriptName + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
-
-    public Map<String, Object> deleteFace(Long employeeId) {
-        return Map.of("status", "success", "message", "Deleted");
-    }
 }
+

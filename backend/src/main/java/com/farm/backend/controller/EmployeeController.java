@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -230,11 +231,13 @@ public class EmployeeController {
     // =====================================================
     @PostMapping("/register-face/{id}")
     public Object registerFace(@PathVariable Long id) {
-        return faceService.registerFace(id);
+        faceService.registerFaceByEmployeeId(id);
+        return Map.of("status", "success", "message", "Face registered");
     }
 
     @DeleteMapping("/delete-face/{id}")
     public Object deleteFace(@PathVariable Long id) {
-        return faceService.deleteFace(id);
+        faceService.deleteFaceByEmployeeId(id);
+        return Map.of("status", "success", "message", "Face deleted");
     }
 }

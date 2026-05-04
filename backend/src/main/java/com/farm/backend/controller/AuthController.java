@@ -128,16 +128,7 @@ public class AuthController {
         }
 
         Employee employee = employeeOpt.get();
-        Map<String, Object> faceResponse = faceService.registerFace(employee.getId());
-        if ("error".equals(faceResponse.get("status"))) {
-            return faceResponse;
-        }
-
-        user.setFaceRegistered(true);
-        repo.save(user);
-
-        employee.setFaceRegistered(true);
-        employeeRepository.save(employee);
+        faceService.registerFace(user.getId());
 
         return Map.of(
                 "message", "Face registered successfully",
@@ -161,24 +152,19 @@ public class AuthController {
             );
         }
 
-        Number employeeIdNum = (Number) recognition.get("employeeId");
-        if (employeeIdNum == null) {
+        String email = (String) recognition.get("email");
+        if (email == null) {
             return Map.of("status", "error", "message", "Unknown face");
         }
 
-        var employee = employeeRepository.findById(employeeIdNum.longValue());
-        if (employee.isEmpty()) {
-            return Map.of("status", "error", "message", "Employee not found in database");
-        }
-
-        // 🔥 CHECK IF FACE IS REGISTERED (redundant but safe)
-        if (!employee.get().isFaceRegistered()) {
-            return Map.of("status", "error", "message", "Face not registered. Please register your face in Settings first.");
-        }
-
-        var user = repo.findByEmail(employee.get().getEmail());
+        var user = repo.findByEmail(email);
         if (user.isEmpty()) {
-            return Map.of("status", "error", "message", "User account not found for this employee");
+            return Map.of("status", "error", "message", "User account not found");
+        }
+
+        // Check if face is registered in User entity
+        if (!user.get().isFaceRegistered()) {
+            return Map.of("status", "error", "message", "Face not registered. Please register your face in Settings first.");
         }
 
         String token = JwtUtil.generateToken(
@@ -186,15 +172,16 @@ public class AuthController {
                 user.get().getRole().name()
         );
 
-        return Map.of(
-                "status", "success",
-                "token", token,
-                "role", user.get().getRole().name(),
-                "email", user.get().getEmail(),
-                "faceRegistered", user.get().isFaceRegistered(),
-                "userId", user.get().getId(),
-                "confidence", recognition.get("confidence")
-        );
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("status", "success");
+        response.put("token", token);
+        response.put("role", user.get().getRole().name());
+        response.put("email", user.get().getEmail());
+        response.put("faceRegistered", user.get().isFaceRegistered());
+        response.put("userId", user.get().getId());
+        response.put("confidence", recognition.get("confidence"));
+        
+        return response;
     }
 
     // =========================
@@ -241,7 +228,7 @@ public class AuthController {
             repo.save(user);
 
             // 🔥 LANCER PYTHON (via FaceService)
-            faceService.registerFace(emp.getId());
+            faceService.registerFace(user.getId());
 
             return Map.of("msg", "USER CREATED + FACE STARTED");
 

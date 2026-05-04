@@ -9,27 +9,17 @@ export class FaceRegistrationComponent implements OnInit {
 
   employees: Employee[] = [];
   selected?: Employee;
-  video: any;
+  loading = false;
+  statusMessage = '';
 
   constructor(private service: EmployeeService) {}
 
   ngOnInit(): void {
     this.load();
-    this.startCamera();
   }
 
   load() {
     this.service.getWithoutFace().subscribe(res => this.employees = res);
-  }
-
-  startCamera() {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        const video = document.querySelector('video');
-        if (video) {
-          video.srcObject = stream;
-        }
-      });
   }
 
   select(e: Employee) {
@@ -37,25 +27,25 @@ export class FaceRegistrationComponent implements OnInit {
   }
 
   capture() {
-    const canvas = document.createElement('canvas');
-    const video: any = document.querySelector('video');
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext('2d');
-    ctx?.drawImage(video, 0, 0);
-
-    canvas.toBlob(blob => {
-      if (blob && this.selected?.id) {
-        const file = new File([blob], 'face.jpg');
-
-        this.service.registerFace(this.selected.id, file)
-          .subscribe(() => {
-            alert("Face enregistrée ✅");
-            this.load();
-          });
-      }
-    });
+    if (!this.selected?.id) return;
+    
+    this.loading = true;
+    this.statusMessage = 'Initialisation de la caméra système... Regardez l\'objectif 📷';
+    
+    this.service.registerFace(this.selected.id)
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          alert("Face enregistrée avec succès ✅");
+          this.load();
+          this.selected = undefined;
+          this.statusMessage = '';
+        },
+        error: (err) => {
+          this.loading = false;
+          alert("Erreur lors de la capture : " + (err.error?.error || "Vérifiez que la caméra est branchée"));
+          this.statusMessage = '';
+        }
+      });
   }
 }

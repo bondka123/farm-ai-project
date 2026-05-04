@@ -41,6 +41,7 @@ export class LoginComponent {
         // ✅ STOCKAGE
         localStorage.setItem('token', res.token);
         localStorage.setItem('role', res.role);
+        localStorage.setItem('email', res.email);
         localStorage.setItem('faceRegistered', res.faceRegistered);
         localStorage.setItem('userId', res.userId);
 
@@ -99,6 +100,7 @@ export class LoginComponent {
             // ✅ STOCKAGE
             localStorage.setItem('token', res.token);
             localStorage.setItem('role', role);
+            localStorage.setItem('email', res.email);
             localStorage.setItem('faceRegistered', 'true');
 
             // 🔥 REDIRECTION

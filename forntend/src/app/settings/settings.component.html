@@ -73,12 +73,60 @@
         </div>
       </div>
     </div>
+    <div class="row mt-4">
+      <!-- 👤 RECONNAISSANCE FACIALE -->
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">RECONNAISSANCE FACIALE</h4>
+            <p class="category">Gérez vos données biométriques pour une connexion sécurisée</p>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="status-box" [ngClass]="faceRegistered ? 'status-registered' : 'status-not-registered'">
+                  <i class="material-icons">{{ faceRegistered ? 'check_circle' : 'error' }}</i>
+                  <span>{{ faceRegistered ? 'VISAGE ENREGISTRÉ' : 'AUCUN VISAGE ENREGISTRÉ' }}</span>
+                </div>
+              </div>
+              <div class="col-md-6 text-end">
+                <button *ngIf="!faceRegistered" (click)="onRegisterFace()" class="btn btn-primary" [disabled]="loading || faceLoading">
+                  <i class="material-icons">face</i> ENREGISTRER MON VISAGE
+                </button>
+                <div *ngIf="faceRegistered" class="btn-group-custom">
+                  <button (click)="onUpdateFace()" class="btn btn-info me-2" [disabled]="loading || faceLoading">
+                    <i class="material-icons">cached</i> METTRE À JOUR
+                  </button>
+                  <button (click)="onDeleteFace()" class="btn btn-danger" [disabled]="loading || faceLoading">
+                    <i class="material-icons">delete</i> SUPPRIMER
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 info-alert">
+              <i class="material-icons">info</i>
+              <p>La reconnaissance faciale vous permet de vous connecter sans mot de passe. Vos données sont sécurisées et stockées localement.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🌀 LOADING OVERLAY -->
+<div *ngIf="faceLoading" class="face-loader-overlay">
+  <div class="loader-content">
+    <div class="spinner-border text-primary" role="status"></div>
+    <h3>{{ cameraStatus }}</h3>
+    <p>Ne fermez pas cette fenêtre</p>
   </div>
 </div>
 
 <style>
 .section-title {
-  color: var(--primary);
+  color: #9c27b0;
   font-weight: 800;
   margin-bottom: 25px;
   display: flex;
@@ -92,6 +140,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   color: white;
+  margin-bottom: 30px;
 }
 
 .card-title {
@@ -114,4 +163,72 @@
 .category {
   color: rgba(255, 255, 255, 0.6);
 }
+
+.status-box {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.status-box i { margin-right: 15px; font-size: 30px; }
+
+.status-registered {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-not-registered {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.info-alert {
+  background: rgba(33, 150, 243, 0.05);
+  border-left: 4px solid #2196f3;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.info-alert i { color: #2196f3; margin-right: 15px; }
+.info-alert p { margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.8); }
+
+.face-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+}
+
+.loader-content {
+  text-align: center;
+  color: white;
+}
+
+.loader-content .spinner-border {
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 20px;
+}
+
+.loader-content h3 { font-weight: bold; margin-bottom: 10px; }
+.loader-content p { color: rgba(255, 255, 255, 0.6); }
+
+.btn-group-custom {
+  display: flex;
+  justify-content: flex-end;
+}
 </style>
+

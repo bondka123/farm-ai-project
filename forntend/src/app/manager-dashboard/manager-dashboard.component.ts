@@ -38,6 +38,7 @@ export class ManagerDashboardComponent implements OnInit {
   error = '';
   teamMessage = '';
   userRole = '';
+  currentView: 'dashboard' | 'settings' = 'dashboard';
 
   private pollingSub?: any;
 
@@ -61,11 +62,18 @@ export class ManagerDashboardComponent implements OnInit {
     if (this.pollingSub) clearInterval(this.pollingSub);
   }
 
+  switchView(view: 'dashboard' | 'settings'): void {
+    this.currentView = view;
+  }
+
   scrollTo(sectionId: string): void {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    this.currentView = 'dashboard';
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 
   get suggestionJobs(): string[] {

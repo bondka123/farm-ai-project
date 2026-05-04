@@ -50,6 +50,10 @@ export class UserService {
   }
 
   // ✅ SETTINGS
+  getProfile() {
+    return this.http.get<User>(`${this.API}/get-profile`);
+  }
+
   updateProfile(user: User) {
     return this.http.put(`${this.API}/update-profile`, user);
   }

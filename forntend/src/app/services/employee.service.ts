@@ -51,14 +51,12 @@ export class EmployeeService {
     return this.http.delete(`${this.API}/${id}`);
   }
 
-  registerFace(id: number, file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post(
-      `${this.API}/register-face/${id}`,
-      formData,
-      { responseType: 'text' }
-    );
+  registerFace(id: number) {
+    return this.http.post(`${this.API}/register-face/${id}`, {});
+  }
+
+  deleteFace(id: number) {
+    return this.http.delete(`${this.API}/delete-face/${id}`);
   }
 
   // ✅ VALIDATE FACE

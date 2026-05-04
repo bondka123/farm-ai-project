@@ -222,6 +222,14 @@ public class UserController {
         return "EMAIL SENT ✅";
     }
 
+    @GetMapping("/get-profile")
+    public ResponseEntity<User> getProfile(org.springframework.security.core.Authentication auth) {
+        String email = auth.getName();
+        User user = repo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(user);
+    }
+
     // =========================
     // ⚙️ SETTINGS
     // =========================

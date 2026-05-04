@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService, User } from '../services/user.service';
+import { FaceService } from '../services/face.service';
 
 @Component({
   selector: 'app-settings',
@@ -22,16 +23,79 @@ export class SettingsComponent implements OnInit {
   };
 
   loading = false;
+  faceLoading = false;
+  faceRegistered = false;
   message = '';
   isError = false;
+  cameraStatus = '';
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private faceService: FaceService
+  ) { }
 
   ngOnInit(): void {
-    // We could fetch the current user profile here
-    // For now, we assume we can get basic info from localStorage or a new /me endpoint
-    // Let's use the local storage if available or a mock for now
     this.user.email = localStorage.getItem('email') || '';
+    this.fetchProfile();
+    this.checkFaceStatus();
+  }
+
+  fetchProfile() {
+    this.userService.getProfile().subscribe({
+      next: (data) => this.user = data,
+      error: () => console.error("Erreur chargement profil")
+    });
+  }
+
+  checkFaceStatus() {
+    this.faceService.getStatus().subscribe({
+      next: (res) => this.faceRegistered = res.faceRegistered,
+      error: () => console.error("Erreur status visage")
+    });
+  }
+
+  onRegisterFace() {
+    this.startFaceProcess('register');
+  }
+
+  onUpdateFace() {
+    this.startFaceProcess('update');
+  }
+
+  onDeleteFace() {
+    if (!confirm('Supprimer votre visage enregistré ?')) return;
+    this.loading = true;
+    this.faceService.deleteFace().subscribe({
+      next: () => {
+        this.loading = false;
+        this.faceRegistered = false;
+        this.showMessage('Visage supprimé avec succès ✅', false);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.showMessage('Erreur lors de la suppression ❌', true);
+      }
+    });
+  }
+
+  private startFaceProcess(type: 'register' | 'update') {
+    this.faceLoading = true;
+    this.cameraStatus = 'Initialisation de la caméra... Regardez l\'objectif 📷';
+    
+    const obs = type === 'register' ? this.faceService.registerFace() : this.faceService.updateFace();
+    
+    obs.subscribe({
+      next: (res) => {
+        this.faceLoading = false;
+        this.faceRegistered = true;
+        this.showMessage(type === 'register' ? 'Visage enregistré ! ✅' : 'Visage mis à jour ! ✅', false);
+      },
+      error: (err) => {
+        this.faceLoading = false;
+        const msg = err.error?.error || 'Erreur caméra ou détection ❌';
+        this.showMessage(msg, true);
+      }
+    });
   }
 
   updateProfile() {
@@ -74,3 +138,4 @@ export class SettingsComponent implements OnInit {
     setTimeout(() => this.message = '', 3000);
   }
 }
+

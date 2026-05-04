@@ -44,6 +44,9 @@ public class User {
 
     private String activationToken;
 
+    @Column(columnDefinition = "TEXT")
+    private String embedding;
+
     // =========================
     // 🔥 RELATION
     // =========================
@@ -74,6 +77,8 @@ public class User {
 
     public String getActivationToken() { return activationToken; }
 
+    public String getEmbedding() { return embedding; }
+
     public Department getDepartment() { return department; }
 
     // =========================
@@ -98,6 +103,8 @@ public class User {
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
     public void setActivationToken(String activationToken) { this.activationToken = activationToken; }
+
+    public void setEmbedding(String embedding) { this.embedding = embedding; }
 
     public void setDepartment(Department department) { this.department = department; }
 }
