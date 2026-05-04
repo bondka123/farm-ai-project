@@ -26,6 +26,7 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
+            .cors(org.springframework.security.config.Customizer.withDefaults())
 
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -35,19 +36,33 @@ public class SecurityConfig {
 
                 // 🔓 AUTH
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-                // 🔓 IA SYSTEM
-                .requestMatchers("/api/departments/**").permitAll()
+                // 🔓 PUBLIC
+                .requestMatchers("/api/departments/public").permitAll()
                 .requestMatchers("/api/department-status/**").permitAll()
                 .requestMatchers("/api/attendance/**").permitAll()
-
-                // 🔓 UPLOAD
                 .requestMatchers("/api/upload/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/api/alerts/ai-detection").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/ai/status/**").permitAll()
 
-                // 🔒 CAMERAS
-                .requestMatchers("/api/cameras/**").authenticated()
+
+
+                // 🔥 USERS → AUTHENTICATED (Check roles in Controller)
+                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/api/manager/**").authenticated()
+                
+                // 🎭 FACE RECOGNITION (ACCESS TO ALL AUTHENTICATED)
+                .requestMatchers("/api/employees/register-face/**").authenticated()
+                .requestMatchers("/api/employees/delete-face/**").authenticated()
+                .requestMatchers("/api/employees/me").authenticated()
 
                 // 🔒 AUTRES
+                .requestMatchers("/api/departments/**").authenticated()
+                .requestMatchers("/api/cameras/**").authenticated()
+
                 .anyRequest().authenticated()
             )
 
@@ -57,6 +72,18 @@ public class SecurityConfig {
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        configuration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

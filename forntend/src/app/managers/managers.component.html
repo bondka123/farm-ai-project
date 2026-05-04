@@ -1,0 +1,156 @@
+<div class="main-content">
+  <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="section-title"><i class="material-icons">admin_panel_settings</i> GESTION DES GESTIONNAIRES</h2>
+      </div>
+    </div>
+
+    <!-- 🤵 SECTION : FORMULAIRE -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">{{ isEdit ? 'MODIFIER LE COMPTE' : 'CRÉER UN NOUVEAU GESTIONNAIRE' }}</h4>
+            <p class="category">Gestion des accès et privilèges administratifs</p>
+          </div>
+          <div class="card-body p-4">
+            <form (ngSubmit)="save()">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>PRÉNOM</label>
+                    <input type="text" class="form-control" [(ngModel)]="manager.firstName" name="fn" placeholder="Ex: Jean" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>NOM DE FAMILLE</label>
+                    <input type="text" class="form-control" [(ngModel)]="manager.lastName" name="ln" placeholder="Ex: Dupont" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>ADRESSE EMAIL</label>
+                    <input type="email" class="form-control" [(ngModel)]="manager.email" name="em" placeholder="jean.dupont@secure.com" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>NUMÉRO DE TÉLÉPHONE</label>
+                    <input type="text" class="form-control" [(ngModel)]="manager.phone" name="ph" placeholder="+33 6 00 00 00 00">
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-12 text-right">
+                  <button type="button" class="btn btn-secondary mr-2" (click)="afterSave()" *ngIf="isEdit">ANNULER</button>
+                  <button type="submit" class="btn btn-primary px-5" [disabled]="loading">
+                    <i class="material-icons">{{ isEdit ? 'save' : 'person_add' }}</i>
+                    {{ isEdit ? 'METTRE À JOUR' : 'ENREGISTRER' }}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📋 SECTION : LISTE -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="card-title">GESTIONNAIRES ACTIFS</h4>
+            <span class="badge badge-primary">{{ managers.length }} ACTIFS</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th class="pl-4">IDENTITÉ</th>
+                    <th>COORDONNÉES</th>
+                    <th class="text-right pr-4">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let m of managers; let i = index" class="row-hover">
+                    <td class="pl-4">
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-circle mr-3 avatar-purple">
+                          {{ m.firstName?.charAt(0) }}{{ m.lastName?.charAt(0) }}
+                        </div>
+                        <div>
+                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ m.firstName }} {{ m.lastName }}</div>
+                          <span class="badge badge-info x-small">MANAGER</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-muted small"><i class="material-icons x-small">email</i> {{ m.email }}</div>
+                      <div class="text-muted small"><i class="material-icons x-small">phone</i> {{ m.phone }}</div>
+                      <div class="mt-1">
+                        <span class="badge" [ngClass]="m.enabled ? 'badge-success' : 'badge-warning'">
+                          {{ m.enabled ? 'ACTIF' : 'EN ATTENTE D\'ACTIVATION' }}
+                        </span>
+                        <span class="badge ml-1" [ngClass]="m.faceRegistered ? 'badge-info' : 'badge-danger'">
+                          <i class="material-icons x-small">face</i> 
+                          {{ m.faceRegistered ? 'VISAGE OK' : 'VISAGE MANQUANT' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="text-right pr-4">
+                      <button class="btn btn-link btn-info btn-sm" (click)="edit(m)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button class="btn btn-link btn-danger btn-sm" (click)="delete(m.id!)">
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.section-title {
+  color: var(--primary);
+  font-weight: 800;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+}
+.section-title i { margin-right: 10px; font-size: 32px; }
+
+.avatar-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  background: linear-gradient(45deg, #9c27b0, #ba2dd4);
+}
+
+.x-small { font-size: 12px !important; vertical-align: middle; }
+
+.row-hover:hover {
+  background: rgba(156, 39, 176, 0.05) !important;
+}
+</style>

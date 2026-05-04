@@ -1,0 +1,289 @@
+<div class="manager-shell">
+  <aside class="manager-sidebar">
+    <div class="brand">
+      <i class="material-icons">security</i>
+      <span>FARM<span>AI</span></span>
+    </div>
+
+    <nav>
+      <a class="active">
+        <i class="material-icons">dashboard</i>
+        <span>Manager</span>
+      </a>
+      <a (click)="scrollTo('employees')">
+        <i class="material-icons">people</i>
+        <span>Employes</span>
+      </a>
+      <a (click)="scrollTo('cameras')">
+        <i class="material-icons">videocam</i>
+        <span>Cameras</span>
+      </a>
+      <a (click)="scrollTo('alerts')">
+        <i class="material-icons">notifications_active</i>
+        <span>Alertes</span>
+      </a>
+      <a (click)="scrollTo('team')">
+        <i class="material-icons">groups</i>
+        <span>Equipe</span>
+      </a>
+      <a routerLink="/dashboard/settings">
+        <i class="material-icons">settings</i>
+        <span>Parametres</span>
+      </a>
+    </nav>
+
+    <button type="button" class="logout" (click)="logout()">
+      <i class="material-icons">power_settings_new</i>
+      <span>Deconnexion</span>
+    </button>
+  </aside>
+
+  <main class="manager-content">
+    <header class="manager-header">
+      <div>
+        <p>Tableau de bord</p>
+        <div class="d-flex align-items-center">
+          <h1 class="mr-3">{{ department?.name || 'Manager Dashboard' }}</h1>
+          <span *ngIf="alerts.length > 0" 
+                class="badge" 
+                [class.badge-danger]="alerts[0].severity === 'CRITICAL'" 
+                [class.badge-warning]="alerts[0].severity === 'WARNING'">
+            {{ alerts[0].severity }} ALERT: {{ alerts[0].message }}
+          </span>
+          <span *ngIf="alerts.length === 0" class="badge badge-success">
+            🟢 SYSTEM OK
+          </span>
+        </div>
+      </div>
+      <button type="button" class="refresh" (click)="loadManagerData()">
+        <i class="material-icons">refresh</i>
+      </button>
+    </header>
+
+    <section class="stats-grid">
+      <article>
+        <i class="material-icons">people</i>
+        <span>Affectations</span>
+        <strong>{{ department?.assignedEmployees || 0 }} / {{ (department?.doctors || 0) + (department?.electricians || 0) + (department?.workers || 0) }}</strong>
+      </article>
+      <article>
+        <i class="material-icons">videocam</i>
+        <span>Cameras</span>
+        <strong>{{ cameras.length }}</strong>
+      </article>
+      <article>
+        <i class="material-icons">warning</i>
+        <span>Alertes actives</span>
+        <strong>{{ alerts.length }}</strong>
+      </article>
+    </section>
+
+    <div *ngIf="error" class="state error">{{ error }}</div>
+    <div *ngIf="loading" class="state">Chargement...</div>
+
+    <section class="panel" id="team">
+      <div class="panel-title">
+        <h2>Proposition d'equipe</h2>
+        <span>Suggestion intelligente</span>
+      </div>
+
+      <div class="team-body">
+        <div *ngIf="teamLoading" class="state">Generation en cours...</div>
+        <div *ngIf="teamMessage" class="team-message">{{ teamMessage }}</div>
+
+        <div class="team-grid" *ngIf="!teamLoading">
+          <article class="team-group" *ngFor="let job of suggestionJobs">
+            <div class="team-group-title">
+              <h3>{{ job }}</h3>
+              <div class="requirement-progress" [class]="getProgressClass(job)">
+                <span class="count">{{ (selectedTeam[job] || []).length }} / {{ getRequiredCount(job) }}</span>
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="((selectedTeam[job] || []).length / getRequiredCount(job)) * 100"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="requirement-alert" *ngIf="!isRequirementMet(job) && getValidCandidates(job).length === 0">
+              <i class="material-icons">error_outline</i>
+              <span>❌ Not enough validated employees for this job</span>
+            </div>
+
+            <div class="team-member" *ngFor="let employee of (selectedTeam[job] || [])">
+              <div>
+                <strong>{{ employee.name }}</strong>
+                <p>{{ employee.email || employee.phone || '-' }}</p>
+                <span class="status-badge" [style.background]="employee.status === 'APPROVED' ? '#4caf50' : '#ff9800'" 
+                      style="font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white;">
+                  {{ employee.status }}
+                </span>
+              </div>
+              <button *ngIf="modifyMode" type="button" class="icon-action" (click)="removeEmployee(job, employee.id)">
+                <i class="material-icons">close</i>
+              </button>
+            </div>
+
+            <div class="team-member empty" *ngIf="(selectedTeam[job] || []).length === 0">
+              Aucun candidat selectionne
+            </div>
+
+            <select *ngIf="modifyMode" class="candidate-select" #candidateSelect (change)="addEmployee(job, candidateSelect.value); candidateSelect.value = ''">
+              <option value="">Ajouter un employe {{ job }}</option>
+              <option *ngFor="let candidate of availableCandidates(job)" [value]="candidate.id">
+                {{ candidate.name }} - {{ candidate.email || 'disponible' }}
+              </option>
+            </select>
+          </article>
+        </div>
+
+        <div class="team-help" *ngIf="!teamLoading">
+          La proposition utilise uniquement les employes disponibles avec le meme metier que les besoins du departement.
+        </div>
+
+        <div class="team-actions">
+          <!-- Button for NEW team (Manager or Admin) -->
+          <button *ngIf="department && department.assignedEmployees === 0" type="button" class="primary-action" (click)="acceptTeam()" [disabled]="teamLoading || !hasSelectedEmployees">
+            <i class="fas" [class.fa-spinner]="teamLoading" [class.fa-spin]="teamLoading" [class.fa-check]="!teamLoading"></i>
+            {{ teamLoading ? 'Validation...' : 'Valider Equipe' }}
+          </button>
+          
+          <!-- Button for UPDATING team (Admin Only) -->
+          <button *ngIf="department && department.assignedEmployees > 0 && userRole === 'ROLE_ADMIN'" type="button" class="primary-action" (click)="updateTeam()" [disabled]="teamLoading || !hasSelectedEmployees">
+            <i class="fas" [class.fa-spinner]="teamLoading" [class.fa-spin]="teamLoading" [class.fa-save]="!teamLoading"></i>
+            {{ teamLoading ? 'Mise à jour...' : 'Confirmer les changements' }}
+          </button>
+
+          <!-- Modify button (Allowed for Admin, or Manager only if not yet assigned) -->
+          <button *ngIf="userRole === 'ROLE_ADMIN' || (department && department.assignedEmployees === 0)" type="button" class="secondary-action" (click)="modifyMode = !modifyMode" [disabled]="teamLoading">
+            {{ modifyMode ? 'Terminer modification' : 'Modifier' }}
+          </button>
+        </div>
+
+        <div class="team-message" [style.color]="teamMessage.includes('❌') || teamMessage.includes('⚠️') ? '#f44336' : '#4caf50'" *ngIf="teamMessage">
+          {{ teamMessage }}
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="available-employees">
+      <div class="panel-title">
+        <h2>Employés disponibles</h2>
+        <span>Gestion du vivier de talents</span>
+      </div>
+
+      <div class="employee-split">
+        <div class="split-column">
+          <div class="split-header valid">
+            <i class="material-icons">check_circle</i>
+            <h3>✅ Valid Employees</h3>
+          </div>
+          <div class="team-grid">
+            <article class="team-group" *ngFor="let job of suggestionJobs">
+              <h4>{{ job }}</h4>
+              <div class="team-member" *ngFor="let employee of getValidCandidates(job)">
+                <div>
+                  <strong>{{ employee.name }}</strong>
+                  <p>{{ employee.email || '-' }}</p>
+                </div>
+              </div>
+              <div class="empty-mini" *ngIf="getValidCandidates(job).length === 0">Aucun</div>
+            </article>
+          </div>
+        </div>
+
+        <div class="split-column">
+          <div class="split-header invalid">
+            <i class="material-icons">cancel</i>
+            <h3>❌ Non-Validated Employees</h3>
+          </div>
+          <p class="invalid-hint">These employees are not yet validated and cannot be assigned.</p>
+          <div class="team-grid">
+            <article class="team-group" *ngFor="let job of suggestionJobs">
+              <h4>{{ job }}</h4>
+              <div class="team-member invalid-member" *ngFor="let employee of getInvalidCandidates(job)">
+                <div>
+                  <strong>{{ employee.name }}</strong>
+                  <p>{{ employee.email || '-' }}</p>
+                  <span class="reason">
+                    {{ !employee.faceRegistered ? 'Face not registered' : '' }}
+                    {{ employee.status !== 'APPROVED' ? ( !employee.faceRegistered ? ' & ' : '' ) + 'Not approved' : '' }}
+                  </span>
+                </div>
+              </div>
+              <div class="empty-mini" *ngIf="getInvalidCandidates(job).length === 0">Aucun</div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="employees">
+      <div class="panel-title">
+        <h2>Employes</h2>
+        <span>Lecture seule</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Poste</th>
+              <th>Statut</th>
+              <th>Visage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let employee of employees">
+              <td>{{ employee.name }}</td>
+              <td>{{ employee.email || '-' }}</td>
+              <td>{{ employee.job }}</td>
+              <td><span class="badge">{{ employee.status }}</span></td>
+              <td>
+                <span class="face" [class.ok]="employee.faceRegistered">
+                  {{ employee.faceRegistered ? 'Enregistre' : 'Manquant' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="employees.length === 0 && !loading">
+              <td colspan="5" class="empty">Aucun employe</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="cameras">
+      <div class="panel-title">
+        <h2>Cameras</h2>
+        <span>Surveillance</span>
+      </div>
+      <div class="cards-grid">
+        <article class="camera-card" *ngFor="let camera of cameras">
+          <div>
+            <h3>{{ camera.name }}</h3>
+            <p>{{ camera.location }}</p>
+          </div>
+          <span class="status" [class.online]="camera.status === 'ACTIVE'">{{ camera.status }}</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="alerts">
+      <div class="panel-title">
+        <h2>Alertes</h2>
+        <span>Actives</span>
+      </div>
+      <div class="alert-list">
+        <article class="alert-row" *ngFor="let alert of alerts">
+          <i class="material-icons">warning</i>
+          <div>
+            <strong>{{ alert.type }}</strong>
+            <p>{{ alert.message }}</p>
+          </div>
+          <span>{{ alert.severity }}</span>
+        </article>
+        <div class="empty" *ngIf="alerts.length === 0 && !loading">Aucune alerte active</div>
+      </div>
+    </section>
+  </main>
+</div>

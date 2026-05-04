@@ -1,0 +1,461 @@
+<div class="viewer-shell">
+  <!-- Sidebar -->
+  <aside class="viewer-sidebar">
+    <div class="brand">
+      <i class="material-icons">security</i>
+      <span>FARM<span class="purple-text">AI</span></span>
+    </div>
+
+    <nav>
+      <a class="active">
+        <i class="material-icons">dashboard</i>
+        <span>Tableau de bord</span>
+      </a>
+      <a (click)="scrollTo('employees')">
+        <i class="material-icons">people</i>
+        <span>Employés</span>
+      </a>
+      <a (click)="scrollTo('departments')">
+        <i class="material-icons">apartment</i>
+        <span>Départements</span>
+      </a>
+      <a routerLink="/dashboard/settings">
+        <i class="material-icons">settings</i>
+        <span>Paramètres</span>
+      </a>
+    </nav>
+
+    <button type="button" class="logout" (click)="logout()">
+      <i class="material-icons">power_settings_new</i>
+      <span>Déconnexion</span>
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="viewer-content">
+    <header class="viewer-header">
+      <div>
+        <p>Opérateur IA / Viewer</p>
+        <h1>Tableau de Bord Opérationnel</h1>
+      </div>
+      <div class="header-actions">
+        <span class="badge badge-info">SESSION ACTIVE</span>
+        <button type="button" class="refresh" (click)="loadData()">
+          <i class="material-icons">refresh</i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-icon blue">
+          <i class="material-icons">apartment</i>
+        </div>
+        <div class="stat-info">
+          <span>Départements</span>
+          <strong>{{ departments.length }}</strong>
+        </div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-icon green">
+          <i class="material-icons">how_to_reg</i>
+        </div>
+        <div class="stat-info">
+          <span>Visages enregistrés</span>
+          <strong>{{ getRegisteredCount() }}</strong>
+        </div>
+      </article>
+      <article class="stat-card warning" [class.shake]="getUnregisteredCount() > 0">
+        <div class="stat-icon orange">
+          <i class="material-icons">person_search</i>
+        </div>
+        <div class="stat-info">
+          <span>Action requise</span>
+          <strong>{{ getUnregisteredCount() }} sans visage</strong>
+        </div>
+      </article>
+    </section>
+
+    <!-- Employees Section (Core Action) -->
+    <section class="panel fade-in" id="employees">
+      <div class="panel-title">
+        <div class="d-flex align-items-center">
+          <i class="material-icons mr-2 text-primary">people</i>
+          <div>
+            <h2>Gestion des Employés</h2>
+            <span>Enregistrez les visages manquants pour activer l'IA</span>
+          </div>
+        </div>
+        <div class="search-box">
+          <i class="material-icons">search</i>
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher un employé...">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Département</th>
+              <th>Poste</th>
+              <th>Statut AI</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let emp of filteredEmployees()" [class.needs-action]="!emp.faceRegistered">
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm mr-3" [class.registered]="emp.faceRegistered">
+                    {{ emp.name.charAt(0) }}
+                  </div>
+                  <div>
+                    <div class="font-weight-bold text-white">{{ emp.name }}</div>
+                    <div class="small text-muted">{{ emp.email || 'Pas d\'email' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="dept-tag">{{ emp.department?.name || 'Non assigné' }}</span>
+              </td>
+              <td>{{ emp.job }}</td>
+              <td>
+                <div class="ai-status" [class.ok]="emp.faceRegistered">
+                  <i class="material-icons">{{ emp.faceRegistered ? 'check_circle' : 'error_outline' }}</i>
+                  <span>{{ emp.faceRegistered ? 'ENREGISTRÉ' : 'À SCANNER' }}</span>
+                </div>
+              </td>
+              <td class="text-right">
+                <button *ngIf="!emp.faceRegistered" class="btn-action pulse" (click)="captureFace(emp)">
+                  <i class="material-icons">videocam</i>
+                  SCANNER LE VISAGE
+                </button>
+                <button *ngIf="emp.faceRegistered" class="btn-action-outline" (click)="captureFace(emp)">
+                  <i class="material-icons">cached</i>
+                  RÉ-ENREGISTRER
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="employees.length === 0">
+              <td colspan="5" class="text-center p-5 text-muted">
+                <i class="material-icons d-block mb-2" style="font-size: 40px;">group_off</i>
+                Aucun employé trouvé
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Departments Section -->
+    <section class="panel mt-4 fade-in" id="departments">
+      <div class="panel-title">
+        <div class="d-flex align-items-center">
+          <i class="material-icons mr-2 text-primary">apartment</i>
+          <div>
+            <h2>Aperçu des Départements</h2>
+            <span>Statistiques par zone</span>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-4" *ngFor="let dept of departments">
+          <div class="dept-card">
+            <h3>{{ dept.name }}</h3>
+            <div class="dept-stats">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total Employés</span>
+                <strong>{{ (dept.workers || 0) + (dept.doctors || 0) + (dept.electricians || 0) }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Horaires</span>
+                <strong>{{ dept.startTime }} - {{ dept.endTime }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<style>
+/* Modern Viewer Layout */
+:host {
+  display: block;
+  background: #0a0b10;
+  min-height: 100vh;
+}
+
+.viewer-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.viewer-sidebar {
+  background: #11121a;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 40px;
+  padding-left: 10px;
+}
+
+.brand i { color: #8e24aa; margin-right: 10px; font-size: 30px; }
+.purple-text { color: #8e24aa; }
+
+nav { flex: 1; }
+nav a {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  color: #a0a0c0;
+  text-decoration: none;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+nav a:hover {
+  background: rgba(142, 36, 170, 0.1);
+  color: white;
+}
+
+nav a.active {
+  background: linear-gradient(45deg, #8e24aa, #ba68c8);
+  color: white;
+  box-shadow: 0 4px 15px rgba(142, 36, 170, 0.3);
+}
+
+nav a i { margin-right: 12px; }
+
+.logout {
+  background: rgba(255, 60, 60, 0.1);
+  color: #ff5252;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.logout:hover { background: #ff5252; color: white; }
+.logout i { margin-right: 10px; }
+
+/* Content */
+.viewer-content { padding: 40px; }
+
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.viewer-header p { color: #8e24aa; font-weight: bold; margin-bottom: 5px; }
+.viewer-header h1 { color: white; font-size: 32px; font-weight: 800; margin: 0; }
+
+.header-actions { display: flex; align-items: center; }
+.refresh {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: #1a1b26;
+  padding: 25px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+}
+
+.stat-icon.blue { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
+.stat-icon.green { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+.stat-icon.orange { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+
+.stat-card.warning { border: 1px solid rgba(255, 152, 0, 0.3); }
+
+.stat-info span { color: #808191; font-size: 14px; }
+.stat-info strong { display: block; color: white; font-size: 24px; font-weight: 800; }
+
+/* Panel */
+.panel {
+  background: #1a1b26;
+  border-radius: 24px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.panel-title h2 { color: white; font-size: 22px; font-weight: 700; margin: 0; }
+.panel-title span { color: #808191; font-size: 14px; }
+
+.search-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  width: 300px;
+}
+
+.search-box i { color: #808191; margin-right: 10px; }
+.search-box input {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 100%;
+}
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; color: #808191; font-weight: 600; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+td { padding: 18px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: #e0e0e0; }
+
+.needs-action { background: rgba(255, 152, 0, 0.02); }
+
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #323544;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+}
+
+.avatar-sm.registered { border: 2px solid #4caf50; color: #4caf50; }
+
+.dept-tag {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.ai-status { display: flex; align-items: center; font-size: 12px; font-weight: bold; }
+.ai-status i { font-size: 18px; margin-right: 6px; color: #ff5252; }
+.ai-status.ok i { color: #4caf50; }
+.ai-status.ok { color: #4caf50; }
+
+.btn-action {
+  background: #8e24aa;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-action i { margin-right: 8px; font-size: 18px; }
+.btn-action:hover { background: #ba68c8; transform: translateY(-2px); }
+
+.btn-action-outline {
+  background: transparent;
+  color: #808191;
+  border: 1px solid #323544;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-action-outline:hover { border-color: #8e24aa; color: white; }
+
+/* Dept Card */
+.dept-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  height: 100%;
+}
+
+.dept-card h3 { color: white; font-size: 18px; margin-bottom: 15px; }
+.dept-stats span { color: #808191; font-size: 14px; }
+.dept-stats strong { color: white; }
+
+/* Animations */
+.fade-in { animation: fadeIn 0.6s ease-out; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse { animation: pulse 2s infinite; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(142, 36, 170, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(142, 36, 170, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(142, 36, 170, 0); }
+}
+
+.shake { animation: shake 1s infinite; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+</style>

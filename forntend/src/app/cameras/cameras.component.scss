@@ -1,0 +1,171 @@
+/* --- MODERN CAMERA MANAGEMENT UI --- */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:host {
+  font-family: 'Inter', sans-serif;
+  display: block;
+}
+
+/* Input Form Controls */
+.custom-input, .custom-select {
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease-in-out;
+  padding: 10px 14px;
+  background-color: #f8fafc;
+  font-size: 14px;
+  
+  &:focus {
+    background-color: #ffffff;
+    border-color: #5e35b1 !important;
+    box-shadow: 0 0 0 3px rgba(94, 53, 177, 0.15) !important;
+    outline: none;
+  }
+}
+
+/* Primary Action Button */
+.custom-action-btn {
+  background: linear-gradient(135deg, #5e35b1 0%, #3949ab 100%) !important;
+  border: none !important;
+  border-radius: 30px !important;
+  padding: 10px 25px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex;
+  align-items: center;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(94, 53, 177, 0.25) !important;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(94, 53, 177, 0.4) !important;
+  }
+}
+
+/* Camera Cards Hover Effect */
+.camera-card {
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+/* Info List */
+.camera-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+
+    .info-label {
+      color: #64748b;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      i {
+        color: #94a3b8;
+      }
+    }
+
+    .info-value {
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .source-text {
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #5e35b1;
+    }
+  }
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+
+  &.status-active {
+    background-color: #ecfdf5;
+    color: #10b981;
+    border: 1px solid #a7f3d0;
+    
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10b981;
+      border-radius: 50%;
+      animation: pulse-green 1.5s infinite;
+    }
+  }
+
+  &.status-off {
+    background-color: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #ef4444;
+      border-radius: 50%;
+    }
+  }
+}
+
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Custom Outlined Buttons */
+.custom-outline-btn {
+  color: #5e35b1 !important;
+  border: 1px solid #5e35b1 !important;
+  background: transparent !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #5e35b1 !important;
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(94, 53, 177, 0.3) !important;
+  }
+}
+
+.custom-danger-btn {
+  color: #ef4444 !important;
+  border: 1px solid #ef4444 !important;
+  background: transparent !important;
+  border-radius: 20px !important;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #ef4444 !important;
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3) !important;
+  }
+}

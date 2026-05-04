@@ -5,8 +5,8 @@ import com.farm.backend.entity.Department;
 import com.farm.backend.repository.CameraRepository;
 import com.farm.backend.repository.DepartmentRepository;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -24,9 +24,11 @@ public class CameraController {
         this.departmentRepository = departmentRepository;
     }
 
-    // 🔒 ADMIN ONLY
+    // =========================
+    // ADD CAMERA
+    // =========================
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public CameraEntity addCamera(@RequestBody CameraEntity camera) {
 
         if (camera.getDepartment() != null) {
@@ -37,33 +39,48 @@ public class CameraController {
             camera.setDepartment(dept);
         }
 
+        camera.setStatus("OFF");
+
         return cameraRepository.save(camera);
     }
 
-    // 🔓 CONNECTED USERS
+    // =========================
+    // GET ALL
+    // =========================
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping
     public List<CameraEntity> getAll() {
         return cameraRepository.findAll();
     }
 
-    // 🔒 ADMIN ONLY
+    // =========================
+    // DELETE
+    // =========================
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String delete(@PathVariable Long id) {
-        cameraRepository.deleteById(id);
-        return "Camera deleted";
-    }
+    public void delete(@PathVariable Long id) {
+    cameraRepository.deleteById(id);
+   }
 
-    // 🔒 ADMIN ONLY
-    @PutMapping("/{id}/status")
+    
+
+    // =========================
+    // UPDATE CAMERA
+    // =========================
     @PreAuthorize("hasRole('ADMIN')")
-    public CameraEntity updateStatus(@PathVariable Long id,
-                                     @RequestParam String status) {
+    @PutMapping("/{id}")
+    public CameraEntity updateCamera(@PathVariable Long id,
+                                     @RequestBody CameraEntity updated) {
 
         CameraEntity cam = cameraRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Camera not found"));
 
-        cam.setStatus(status);
+        cam.setName(updated.getName());
+        cam.setType(updated.getType());
+        cam.setSource(updated.getSource());
+        cam.setLocation(updated.getLocation());
+
+        cam.setStatus("OFF");
 
         return cameraRepository.save(cam);
     }

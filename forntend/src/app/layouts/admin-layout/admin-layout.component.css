@@ -1,0 +1,28 @@
+.wrapper {
+    background: #12121e !important;
+}
+
+.main-panel {
+    background: #12121e !important;
+    min-height: 100vh;
+    border-top: none !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar {
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5) !important;
+    z-index: 4;
+}
+
+.main-panel > .content {
+    background: #12121e !important;
+    padding: 30px 15px;
+    flex: 1;
+}
+
+/* Ensure material dashboard content wrapper is dark */
+.main-content {
+    background: #12121e !important;
+    min-height: 100vh;
+}

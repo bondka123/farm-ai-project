@@ -1,5 +1,6 @@
 package com.farm.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -12,18 +13,20 @@ public class Employee {
     private Long id;
 
     private String name;
-    private String job;
+    @Enumerated(EnumType.STRING)
+    private Job job;
 
-    // 🔗 relation avec department
+    private String email;
+    private String phone;
+
     @ManyToOne
-    @JoinColumn(name = "department_id", nullable = false)
+    @JoinColumn(name = "department_id", nullable = true)
+    @JsonIgnoreProperties({"cameras", "manager", "employees", "requirements"})
     private Department department;
 
-    // 🔐 validation admin
     @Enumerated(EnumType.STRING)
     private EmployeeStatus status;
 
-    // 📸 photo + IA
     private String photoPath;
 
     @Column(columnDefinition = "TEXT")
@@ -31,42 +34,31 @@ public class Employee {
 
     private boolean faceRegistered = false;
 
-    // 🧾 tracking
-    private String createdBy;
-    private String approvedBy;
+    // 🔥 AJOUT IMPORTANT
+    private boolean available = true;
 
     private LocalDateTime createdAt;
-    private LocalDateTime approvedAt;
-
-    private boolean available = true;
 
     // ===== GETTERS =====
     public Long getId() { return id; }
     public String getName() { return name; }
-    public String getJob() { return job; }
+    public Job getJob() { return job; }
+    public String getEmail() { return email; }
+    public String getPhone() { return phone; }
     public Department getDepartment() { return department; }
     public EmployeeStatus getStatus() { return status; }
-    public String getPhotoPath() { return photoPath; }
-    public String getEmbedding() { return embedding; }
     public boolean isFaceRegistered() { return faceRegistered; }
-    public String getCreatedBy() { return createdBy; }
-    public String getApprovedBy() { return approvedBy; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getApprovedAt() { return approvedAt; }
     public boolean isAvailable() { return available; }
 
     // ===== SETTERS =====
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
-    public void setJob(String job) { this.job = job; }
+    public void setJob(Job job) { this.job = job; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPhone(String phone) { this.phone = phone; }
     public void setDepartment(Department department) { this.department = department; }
     public void setStatus(EmployeeStatus status) { this.status = status; }
-    public void setPhotoPath(String photoPath) { this.photoPath = photoPath; }
-    public void setEmbedding(String embedding) { this.embedding = embedding; }
     public void setFaceRegistered(boolean faceRegistered) { this.faceRegistered = faceRegistered; }
-    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
-    public void setApprovedBy(String approvedBy) { this.approvedBy = approvedBy; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public void setApprovedAt(LocalDateTime approvedAt) { this.approvedAt = approvedAt; }
     public void setAvailable(boolean available) { this.available = available; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

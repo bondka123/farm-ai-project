@@ -1,0 +1,117 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="section-title"><i class="material-icons">settings</i> PARAMÈTRES DU COMPTE</h2>
+      </div>
+    </div>
+
+    <div *ngIf="message" class="alert" [ngClass]="isError ? 'alert-danger' : 'alert-success'">
+      {{ message }}
+    </div>
+
+    <div class="row">
+      <!-- 👤 PROFIL -->
+      <div class="col-md-6">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">INFORMATIONS PERSONNELLES</h4>
+            <p class="category">Mettez à jour vos coordonnées</p>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="updateProfile()">
+              <div class="form-group">
+                <label>PRÉNOM</label>
+                <input type="text" class="form-control" [(ngModel)]="user.firstName" name="firstName">
+              </div>
+              <div class="form-group mt-3">
+                <label>NOM</label>
+                <input type="text" class="form-control" [(ngModel)]="user.lastName" name="lastName">
+              </div>
+              <div class="form-group mt-3">
+                <label>TÉLÉPHONE</label>
+                <input type="text" class="form-control" [(ngModel)]="user.phone" name="phone">
+              </div>
+              <div class="form-group mt-3">
+                <label>EMAIL (NON MODIFIABLE)</label>
+                <input type="email" class="form-control" [(ngModel)]="user.email" name="email" readonly>
+              </div>
+              <button type="submit" class="btn btn-primary mt-4 w-100" [disabled]="loading">
+                ENREGISTRER LES MODIFICATIONS
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔐 MOT DE PASSE -->
+      <div class="col-md-6">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">SÉCURITÉ</h4>
+            <p class="category">Changer votre mot de passe</p>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="changePassword()">
+              <div class="form-group">
+                <label>ANCIEN MOT DE PASSE</label>
+                <input type="password" class="form-control" [(ngModel)]="passwords.oldPassword" name="oldPass">
+              </div>
+              <div class="form-group mt-3">
+                <label>NOUVEAU MOT DE PASSE</label>
+                <input type="password" class="form-control" [(ngModel)]="passwords.newPassword" name="newPass">
+              </div>
+              <div class="form-group mt-3">
+                <label>CONFIRMER LE MOT DE PASSE</label>
+                <input type="password" class="form-control" [(ngModel)]="passwords.confirmPassword" name="confirmPass">
+              </div>
+              <button type="submit" class="btn btn-warning mt-4 w-100" [disabled]="loading">
+                METTRE À JOUR LE MOT DE PASSE
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.section-title {
+  color: var(--primary);
+  font-weight: 800;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+}
+.section-title i { margin-right: 10px; font-size: 32px; }
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  color: white;
+}
+
+.card-title {
+  color: #9c27b0;
+  font-weight: bold;
+}
+
+.form-control {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.form-control:focus {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: #9c27b0;
+  color: white;
+}
+
+.category {
+  color: rgba(255, 255, 255, 0.6);
+}
+</style>

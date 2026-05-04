@@ -1,0 +1,252 @@
+<div class="main-content">
+  <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="section-title"><i class="material-icons">business</i> GESTION DES DÉPARTEMENTS</h2>
+      </div>
+    </div>
+
+    <!-- 🏢 SECTION : FORMULAIRE -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">{{ editMode ? 'MODIFIER LE DÉPARTEMENT' : 'CRÉER UN NOUVEAU DÉPARTEMENT' }}</h4>
+            <p class="category">Définissez les zones de surveillance et les horaires</p>
+          </div>
+          <div class="card-body p-4">
+            <form (ngSubmit)="save()">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>NOM DU DÉPARTEMENT</label>
+                    <input type="text" class="form-control" [(ngModel)]="department.name" name="name" placeholder="Ex: Entrepôt Principal" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>RESPONSABLE (MANAGER)</label>
+                    <select class="form-control" [(ngModel)]="department.manager.id" name="manager" required>
+                      <option [ngValue]="null" disabled selected>Sélectionnez un responsable...</option>
+                      <option *ngFor="let m of managers" [ngValue]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>HEURE D'OUVERTURE</label>
+                    <input type="time" class="form-control" [(ngModel)]="department.startTime" name="start">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>HEURE DE FERMETURE</label>
+                    <input type="time" class="form-control" [(ngModel)]="department.endTime" name="end">
+                  </div>
+                </div>
+              </div>
+
+              <div class="requirements-panel mt-4">
+                <div class="requirements-header">
+                  <div>
+                    <h5>BESOINS EXACTS EN EMPLOYES</h5>
+                    <p>Precisez le nombre requis par metier pour ce departement</p>
+                  </div>
+                  <span class="total-badge">{{ getRequiredTotal() }} employe(s)</span>
+                </div>
+
+                <div class="row mt-3">
+                <div class="row mt-3">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>DOCTEURS REQUIS</label>
+                      <input type="number" class="form-control" [(ngModel)]="department.doctors" name="doctors" min="0" step="1" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>ELECTRICIENS REQUIS</label>
+                      <input type="number" class="form-control" [(ngModel)]="department.electricians" name="electricians" min="0" step="1" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>OUVRIERS REQUIS</label>
+                      <input type="number" class="form-control" [(ngModel)]="department.workers" name="workers" min="0" step="1" required>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-12 text-right">
+                  <button type="button" class="btn btn-secondary mr-2" (click)="reset()" *ngIf="editMode">ANNULER</button>
+                  <button type="submit" class="btn btn-primary px-5">
+                    <i class="material-icons">{{ editMode ? 'save' : 'add_business' }}</i>
+                    {{ editMode ? 'METTRE À JOUR' : 'ENREGISTRER' }}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📋 SECTION : CARTES DES DÉPARTEMENTS -->
+    <div class="row mt-5">
+      <div class="col-md-12">
+        <h3 class="text-white font-weight-bold mb-4">UNITÉS OPÉRATIONNELLES</h3>
+        <div class="row">
+          <div class="col-lg-4 col-md-6" *ngFor="let dept of departments">
+            <div class="card glass-card hover-glow mb-4">
+              <div class="card-body text-center py-4">
+                <div class="dept-icon mb-3">
+                  <i class="material-icons">room</i>
+                </div>
+                <h4 class="text-white font-weight-bold mb-1">{{ dept.name }}</h4>
+                <div class="text-primary small font-weight-bold mb-3">
+                  RESPONSABLE: {{ dept.manager?.firstName }} {{ dept.manager?.lastName }}
+                </div>
+                
+                <div class="time-container">
+                  <span class="time-tag">
+                    <i class="material-icons">schedule</i> {{ dept.startTime?.substring(0,5) }} - {{ dept.endTime?.substring(0,5) }}
+                  </span>
+                </div>
+
+                <div class="requirements-summary mt-3">
+                  <span class="total-badge"><i class="material-icons">people</i> {{ dept.assignedEmployees || 0 }} / {{ (dept.doctors || 0) + (dept.electricians || 0) + (dept.workers || 0) }} AFFÉCTÉS</span>
+                </div>
+                <div class="text-muted small mt-2">
+                  Détail: {{ dept.doctors || 0 }} D, {{ dept.electricians || 0 }} E, {{ dept.workers || 0 }} W
+                </div>
+
+                <div class="action-buttons mt-4">
+                  <button class="btn btn-link btn-info" (click)="edit(dept)">
+                    <i class="material-icons">edit</i>
+                  </button>
+                  <button class="btn btn-link btn-danger" (click)="delete(dept.id)">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="departments.length === 0" class="text-center p-5 card glass-card">
+          <i class="material-icons text-muted" style="font-size: 64px;">location_off</i>
+          <p class="text-muted mt-3">Aucun département configuré.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.section-title {
+  color: var(--primary);
+  font-weight: 800;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+}
+.section-title i { margin-right: 10px; font-size: 32px; }
+
+.dept-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(156, 39, 176, 0.1);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.time-tag {
+  background: rgba(0,0,0,0.2);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  display: inline-flex;
+  align-items: center;
+}
+.time-tag i { font-size: 16px; margin-right: 5px; }
+
+.requirements-panel {
+  background: rgba(156, 39, 176, 0.08);
+  border: 1px solid rgba(156, 39, 176, 0.25);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.requirements-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.requirements-header h5 {
+  color: #fff;
+  font-weight: 800;
+  margin: 0;
+}
+
+.requirements-header p {
+  color: rgba(255,255,255,0.6);
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.total-badge {
+  background: #9c27b0;
+  color: #fff;
+  border-radius: 18px;
+  padding: 7px 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.requirements-summary {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.requirements-summary span {
+  min-width: 54px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(156, 39, 176, 0.12);
+  border: 1px solid rgba(156, 39, 176, 0.28);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.requirements-summary i {
+  font-size: 17px;
+  color: #9c27b0;
+}
+
+.hover-glow:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary) !important;
+  box-shadow: 0 10px 30px rgba(156, 39, 176, 0.2) !important;
+}
+</style>

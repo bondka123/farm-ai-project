@@ -1,0 +1,150 @@
+<div class="main-content">
+  <div class="container-fluid">
+    
+    <!-- 🚨 EN-TÊTE DU CENTRE D'ALERTE -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-body p-4 d-flex align-items-center">
+            <div class="alert-icon-main mr-4">
+              <i class="material-icons" style="font-size: 50px; color: #ff5252; text-shadow: 0 0 20px rgba(255, 82, 82, 0.4);">notifications_active</i>
+            </div>
+            <div>
+              <h3 class="text-white font-weight-bold mb-0">CENTRE D'ALERTE SÉCURITÉ</h3>
+              <p class="text-muted mb-0">Surveillance en temps réel des menaces et intrusions</p>
+            </div>
+            <div class="ml-auto text-right">
+              <span class="badge badge-danger px-3 py-2" *ngIf="alerts.length > 0">
+                {{ alerts.length }} ALERTES ACTIVES
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📋 LISTE DES DÉTECTIONS -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="card-title">HISTORIQUE DES DÉTECTIONS</h4>
+            <button class="btn btn-link btn-info" (click)="load()">
+              <i class="material-icons">refresh</i> ACTUALISER
+            </button>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th class="pl-4">CAPTURE</th>
+                    <th>TYPE DE MENACE</th>
+                    <th>LOCALISATION</th>
+                    <th>NIVEAU</th>
+                    <th>DATE & HEURE</th>
+                    <th class="text-right pr-4">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let alert of alerts" class="row-hover" [class.row-alert]="alert.severity === 'HIGH' || alert.severity === 'CRITICAL'">
+                    <td class="pl-4 py-3">
+                      <div class="alert-image-container" [class.border-critical]="alert.severity === 'CRITICAL'">
+                        <img [src]="serverUrl + alert.imagePath" 
+                             *ngIf="alert.imagePath"
+                             class="alert-img"
+                             alt="Detection">
+                        <div class="no-img" *ngIf="!alert.imagePath">
+                          <i class="material-icons">no_photography</i>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-white font-weight-bold">{{ alert.type?.replace('_', ' ') }}</div>
+                      <small class="text-muted">{{ alert.message }}</small>
+                      <div *ngIf="alert.count > 1" class="mt-1">
+                         <span class="badge badge-pill badge-dark" style="font-size: 9px;">RÉPÉTÉ {{ alert.count }} FOIS</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center text-muted">
+                        <i class="material-icons x-small mr-1">place</i>
+                        {{ alert.location || alert.departmentName || 'Zone Inconnue' }}
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" 
+                            [class.badge-danger]="alert.severity === 'HIGH' || alert.severity === 'CRITICAL'"
+                            [class.badge-warning]="alert.severity === 'MEDIUM'"
+                            [class.badge-info]="alert.severity === 'LOW'">
+                        {{ alert.severity }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="text-white">{{ alert.timestamp | date:'HH:mm:ss' }}</div>
+                      <small class="text-muted">{{ alert.timestamp | date:'dd/MM/yyyy' }}</small>
+                    </td>
+                    <td class="text-right pr-4">
+                      <button class="btn btn-link btn-success btn-sm" (click)="resolve(alert.id)" *ngIf="!alert.resolved">
+                        <i class="material-icons">check_circle</i>
+                      </button>
+                      <span class="text-success" *ngIf="alert.resolved">
+                        <i class="material-icons">done_all</i>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="alerts.length === 0" class="text-center p-5">
+              <i class="material-icons text-muted" style="font-size: 64px;">shield</i>
+              <p class="text-muted mt-3">Aucune alerte en cours. Le système est nominal.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.alert-image-container {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.border-critical {
+  border: 2px solid #ff5252 !important;
+  box-shadow: 0 0 15px rgba(255, 82, 82, 0.3);
+}
+
+.alert-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-img {
+  color: rgba(255,255,255,0.2);
+}
+
+.row-alert {
+  background: rgba(255, 82, 82, 0.03) !important;
+}
+
+.row-hover:hover {
+  background: rgba(156, 39, 176, 0.05) !important;
+}
+
+.x-small { font-size: 14px !important; }
+</style>

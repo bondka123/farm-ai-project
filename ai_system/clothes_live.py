@@ -14,9 +14,9 @@ from deep_sort_realtime.deepsort_tracker import DeepSort
 model = YOLO("yolov8n.pt")
 tracker = DeepSort(max_age=30)
 
-BACKEND_DEPT_URL = "http://localhost:8080/api/departments/public"
-BACKEND_STATUS_URL = "http://localhost:8080/api/department-status"
-UPLOAD_URL = "http://localhost:8080/api/upload"
+BACKEND_DEPT_URL = "http://localhost:8081/api/departments/public"
+BACKEND_STATUS_URL = "http://localhost:8081/api/department-status"
+UPLOAD_URL = "http://localhost:8081/api/upload"
 
 camera_id = 1
 

@@ -1,0 +1,99 @@
+<div class="main-content">
+  <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="section-title"><i class="material-icons">face</i> ENREGISTREMENT BIOMÉTRIQUE</h2>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <!-- 📹 CAMERA PREVIEW -->
+      <div class="col-md-6">
+        <div class="card glass-card text-center fade-in">
+          <div class="card-header">
+            <h4 class="card-title">FLUX CAMÉRA LIVE</h4>
+            <p class="category">Positionnez votre visage au centre du cadre</p>
+          </div>
+          <div class="card-body p-4">
+            <div class="video-container mb-4">
+              <video #videoElement autoplay class="face-video"></video>
+              <div class="face-overlay"></div>
+            </div>
+            
+            <button class="btn btn-primary btn-block py-3" (click)="capture()" [disabled]="!selected">
+              <i class="material-icons mr-2">camera</i> CAPTURER & ANALYSER
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 👥 EMPLOYEE SELECTION -->
+      <div class="col-md-4">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">SÉLECTION EMPLOYÉ</h4>
+            <p class="category">Choisissez la personne à enregistrer</p>
+          </div>
+          <div class="card-body p-0">
+             <div class="employee-list" style="max-height: 400px; overflow-y: auto;">
+                <div *ngFor="let e of employees" 
+                     class="employee-item p-3 border-bottom border-dark d-flex align-items-center justify-content-between"
+                     [class.selected]="selected?.id === e.id"
+                     (click)="select(e)">
+                   <div>
+                     <div class="text-white font-weight-bold">{{ e.name }}</div>
+                     <small class="text-muted">{{ e.job }}</small>
+                   </div>
+                   <i class="material-icons text-primary" *ngIf="selected?.id === e.id">check_circle</i>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.section-title {
+  color: var(--primary);
+  font-weight: 800;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+}
+.section-title i { margin-right: 10px; font-size: 32px; }
+
+.video-container {
+  position: relative;
+  background: #000;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(156, 39, 176, 0.3);
+  box-shadow: 0 0 30px rgba(156, 39, 176, 0.2);
+}
+
+.face-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.face-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 250px;
+  height: 250px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.employee-item { cursor: pointer; transition: all 0.3s; }
+.employee-item:hover { background: rgba(156, 39, 176, 0.05); }
+.employee-item.selected { background: rgba(156, 39, 176, 0.1); border-left: 4px solid #9c27b0 !important; }
+</style>

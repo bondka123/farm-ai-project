@@ -1,34 +1,42 @@
 package com.farm.backend.config;
 
-import com.farm.backend.entity.User;
 import com.farm.backend.entity.Role;
+import com.farm.backend.entity.User;
 import com.farm.backend.repository.UserRepository;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Configuration
+@Component
 public class AdminInitializer {
 
-	@Bean
-	CommandLineRunner initAdmin(UserRepository repo, PasswordEncoder encoder) {
-	    return args -> {
+    private final UserRepository repo;
+    private final PasswordEncoder encoder;
 
-	        if (repo.findByUsername("admin").isEmpty()) {
+    public AdminInitializer(UserRepository repo, PasswordEncoder encoder) {
+        this.repo = repo;
+        this.encoder = encoder;
+    }
 
-	            User admin = new User();
-	            admin.setUsername("admin");
-	            admin.setPassword(encoder.encode("123456"));
-	            admin.setRole(Role.ROLE_ADMIN);
-
-	            repo.save(admin);
-
-	            System.out.println("ADMIN CREATED");
-	        }
-	    };
-	
-	
+    @PostConstruct
+    public void init() {
+        repo.findByEmail("admin@farm.com").ifPresentOrElse(
+            admin -> {
+                admin.setPassword(encoder.encode("admin123"));
+                admin.setEnabled(true);
+                admin.setRole(Role.ROLE_ADMIN);
+                repo.save(admin);
+                System.out.println("✅ ADMIN PASSWORD RESET");
+            },
+            () -> {
+                User admin = new User();
+                admin.setEmail("admin@farm.com");
+                admin.setPassword(encoder.encode("admin123"));
+                admin.setRole(Role.ROLE_ADMIN);
+                admin.setEnabled(true);
+                repo.save(admin);
+                System.out.println("✅ ADMIN CREATED");
+            }
+        );
     }
 }

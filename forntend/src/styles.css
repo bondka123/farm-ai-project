@@ -1,1 +1,197 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg-dark: #1e1e2f;
+  --bg-darker: #0c0c14; /* Refined dark background */
+  --primary: #9c27b0;
+  --primary-light: #e1bee7;
+  --glass: rgba(30, 30, 47, 0.85);
+  --glass-border: rgba(156, 39, 176, 0.2);
+  --text-white: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.85); /* Increased contrast */
+  --neon-purple: 0 0 15px rgba(156, 39, 176, 0.4);
+}
+
+body, .wrapper, .main-panel, .main-content, .content, .off-canvas-sidebar, .sidebar {
+  background-color: #0c0c14 !important;
+  color: var(--text-white) !important;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+/* 🧊 GLASSMORPHISM CARDS */
+.card {
+  background: var(--glass) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+  border-radius: 15px !important;
+  margin-top: 20px;
+}
+
+.card .card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.card-title {
+  color: var(--text-white) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 🏷️ LABELS CLAIRS */
+label, .form-group label {
+  color: var(--text-muted) !important;
+  font-weight: 700 !important;
+  margin-bottom: 10px !important;
+  font-size: 11px !important;
+  display: block !important;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ⌨️ INPUTS STYLE */
+.form-control, select.form-control {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  padding: 14px 18px !important;
+  height: auto !important;
+  font-size: 15px !important;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary) !important;
+  background: rgba(156, 39, 176, 0.05) !important;
+  box-shadow: 0 0 15px rgba(156, 39, 176, 0.2) !important;
+  outline: none;
+}
+
+/* 💜 BUTTONS */
+.btn {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  padding: 12px 25px !important;
+  transition: all 0.3s !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn i { margin-right: 8px; font-size: 20px; }
+
+.btn-primary {
+  background: var(--primary) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3) !important;
+}
+
+.btn-primary:hover {
+  background: #ba2dd4 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(156, 39, 176, 0.5) !important;
+}
+
+.btn-danger {
+  background: #f44336 !important;
+  border: none !important;
+}
+
+.btn-secondary {
+  background: #33334d !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* 🧊 GLASSMORPHISM CARDS REFINED */
+.card {
+  background: rgba(30, 30, 47, 0.7) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+  border-radius: 20px !important;
+  margin-bottom: 30px;
+}
+
+.card:hover {
+  border-color: rgba(156, 39, 176, 0.3) !important;
+  transition: border-color 0.3s ease;
+}
+
+.card-header {
+  padding: 25px 25px 15px !important;
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.card-title {
+  color: white !important;
+  font-weight: 800 !important;
+  margin-bottom: 5px !important;
+  letter-spacing: 1px;
+}
+
+.card-category {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 14px !important;
+}
+
+/* 📋 TABLES */
+.table {
+  color: white !important;
+  margin-bottom: 0 !important;
+}
+
+.table thead th {
+  border-top: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  padding: 20px !important;
+}
+
+.table td {
+  padding: 18px 20px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+  vertical-align: middle !important;
+}
+
+.badge {
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 10px !important;
+}
+
+.badge-primary { background: var(--primary) !important; }
+.badge-success { background: #4caf50 !important; }
+.badge-warning { background: #ff9800 !important; }
+.badge-info { background: #00bcd4 !important; }
+
+/* 🌑 SIDEBAR CUSTOM */
+.sidebar-wrapper {
+  background: #12121e !important;
+}
+
+.nav-link p {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+
+/* 🔄 ANIMATIONS */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

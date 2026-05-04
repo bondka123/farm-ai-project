@@ -1,105 +1,97 @@
 <div class="main-content">
   <div class="container-fluid">
-      <div class="row">
-          <div class="col-md-8">
-              <div class="card">
-                  <div class="card-header card-header-danger">
-                      <h4 class="card-title">Edit Profile</h4>
-                      <p class="card-category">Complete your profile</p>
+    
+    <div class="row">
+      <!-- 🤵 MON PROFIL -->
+      <div class="col-md-8">
+        <div class="card glass-card">
+          <div class="card-header card-header-purple">
+            <h4 class="card-title text-white font-weight-bold">👤 MON PROFIL SÉCURISÉ</h4>
+            <p class="card-category text-white-50">Gérez vos informations personnelles et identifiants</p>
+          </div>
+          <div class="card-body p-4">
+            <form>
+              <div class="row mt-3">
+                <div class="col-md-5">
+                  <div class="form-group">
+                    <label>RÔLE SYSTÈME</label>
+                    <input type="text" class="form-control" disabled value="Administrateur Principal">
                   </div>
-                  <div class="card-body">
-                      <form>
-                          <div class="row">
-                              <div class="col-md-5">
-                                <mat-form-field class="example-full-width">
-                                    <input matInput placeholder="Company (disabled)" disabled>
-                                  </mat-form-field>
-                              </div>
-                              <div class="col-md-3">
-                                  <mat-form-field class="example-full-width">
-                                    <input matInput placeholder="Username">
-                                  </mat-form-field>
-                              </div>
-                              <div class="col-md-4">
-                                  <mat-form-field class="example-full-width">
-                                    <input matInput placeholder="Email address" type="email">
-                                  </mat-form-field>
-                              </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-md-6">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput placeholder="Fist Name" type="text">
-                                </mat-form-field>
-                              </div>
-                              <div class="col-md-6">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput placeholder="Last Name" type="text">
-                                </mat-form-field>
-                              </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-md-12">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput placeholder="Adress" type="text">
-                                </mat-form-field>
-                              </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-md-4">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput placeholder="City" type="text">
-                                </mat-form-field>
-                              </div>
-                              <div class="col-md-4">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput placeholder="Country" type="text">
-                                </mat-form-field>
-                              </div>
-                              <div class="col-md-4">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput placeholder="Postal Code" type="text">
-                                </mat-form-field>
-                              </div>
-                          </div>
-                          <div class="row">
-                              <div class="col-md-12">
-                                <label>About Me</label>
-                                <mat-form-field class="example-full-width">
-                                   <textarea matInput placeholder="Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo."></textarea>
-                                 </mat-form-field>
-                                  <!-- <div class="form-group">
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>IDENTIFIANT</label>
+                    <input type="text" class="form-control" value="admin_farm">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>ADRESSE EMAIL</label>
+                    <input type="email" class="form-control" value="admin@farm-ai.com">
+                  </div>
+                </div>
+              </div>
 
-                                      <div class="form-group">
-                                          <label class="bmd-label-floating"> Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo.</label>
-                                          <textarea class="form-control" rows="5"></textarea>
-                                      </div>
-                                  </div> -->
-                              </div>
-                          </div>
-                          <button mat-raised-button type="submit" class="btn btn-danger pull-right">Update Profile</button>
-                          <div class="clearfix"></div>
-                      </form>
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>PRÉNOM</label>
+                    <input type="text" class="form-control" value="Admin">
                   </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>NOM</label>
+                    <input type="text" class="form-control" value="FarmAI">
+                  </div>
+                </div>
               </div>
+
+              <button type="submit" class="btn btn-primary pull-right mt-4 px-4 shadow-purple">METTRE À JOUR MES INFOS</button>
+              <div class="clearfix"></div>
+            </form>
           </div>
-          <div class="col-md-4">
-              <div class="card card-profile">
-                  <div class="card-avatar">
-                      <a href="javascript:void(0)">
-                          <img class="img" src="./assets/img/faces/marc.jpg" />
-                      </a>
-                  </div>
-                  <div class="card-body">
-                      <h6 class="card-category text-gray">CEO / Co-Founder</h6>
-                      <h4 class="card-title">Alec Thompson</h4>
-                      <p class="card-description">
-                          Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
-                      </p>
-                      <a href="javascript:void(0)" class="btn btn-danger btn-round">Follow</a>
-                  </div>
-              </div>
-          </div>
+        </div>
       </div>
+
+      <!-- 🛡️ BIOMÉTRIE & SÉCURITÉ -->
+      <div class="col-md-4">
+        <div class="card glass-card text-center py-5">
+          <div class="card-body">
+            <div class="icon-security-wrapper mb-4">
+              <i class="material-icons" style="font-size: 80px; color: #9c27b0;">face</i>
+            </div>
+            <h4 class="text-white font-weight-bold mb-3">BIOMÉTRIE FACIALE</h4>
+            <p class="text-white-50 px-3">Enregistrez votre visage pour activer l'authentification biométrique sans mot de passe.</p>
+            
+            <div class="mt-5 px-3">
+               <button class="btn btn-primary btn-block py-3 mb-3" (click)="registerFace()">
+                 <i class="material-icons mr-2">camera_enhance</i> ENREGISTRER MON VISAGE
+               </button>
+               <button class="btn btn-outline-danger btn-block btn-sm" (click)="deleteFace()">
+                 <i class="material-icons mr-2" style="font-size: 14px;">delete_forever</i> SUPPRIMER MES DONNÉES BIO
+               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
+
+<style>
+.icon-security-wrapper {
+  width: 120px;
+  height: 120px;
+  background: rgba(156, 39, 176, 0.1);
+  border-radius: 50%;
+  margin: 0 auto;
+  line-height: 120px;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+  box-shadow: 0 0 20px rgba(156, 39, 176, 0.2);
+}
+.shadow-purple {
+  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4) !important;
+}
+</style>

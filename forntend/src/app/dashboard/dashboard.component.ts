@@ -1,150 +1,129 @@
-import { Component, OnInit } from '@angular/core';
-import * as Chartist from 'chartist';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
-  constructor() { }
-  startAnimationForLineChart(chart){
-      let seq: any, delays: any, durations: any;
-      seq = 0;
-      delays = 80;
-      durations = 500;
+  // ==================
+  // BASE URL
+  // ==================
+  private API = 'http://localhost:8081/api';
+  private refreshInterval: any;
 
-      chart.on('draw', function(data) {
-        if(data.type === 'line' || data.type === 'area') {
-          data.element.animate({
-            d: {
-              begin: 600,
-              dur: 700,
-              from: data.path.clone().scale(1, 0).translate(0, data.chartRect.height()).stringify(),
-              to: data.path.clone().stringify(),
-              easing: Chartist.Svg.Easing.easeOutQuint
-            }
-          });
-        } else if(data.type === 'point') {
-              seq++;
-              data.element.animate({
-                opacity: {
-                  begin: seq * delays,
-                  dur: durations,
-                  from: 0,
-                  to: 1,
-                  easing: 'ease'
-                }
-              });
-          }
-      });
+  // ==================
+  // DATA
+  // ==================
+  departments: any[] = [];
+  cameras: any[] = [];
+  statuses: any[] = [];
+  alerts: any[] = [];
 
-      seq = 0;
-  };
-  startAnimationForBarChart(chart){
-      let seq2: any, delays2: any, durations2: any;
+  // ==================
+  // STATS CARDS
+  // ==================
+  totalDepartments = 0;
+  totalCameras = 0;
+  totalAlerts = 0;
+  activeCameras = 0;
 
-      seq2 = 0;
-      delays2 = 80;
-      durations2 = 500;
-      chart.on('draw', function(data) {
-        if(data.type === 'bar'){
-            seq2++;
-            data.element.animate({
-              opacity: {
-                begin: seq2 * delays2,
-                dur: durations2,
-                from: 0,
-                to: 1,
-                easing: 'ease'
-              }
-            });
-        }
-      });
+  // ==================
+  // LOADING
+  // ==================
+  loading = true;
 
-      seq2 = 0;
-  };
-  ngOnInit() {
-      /* ----------==========     Daily Sales Chart initialization For Documentation    ==========---------- */
+  constructor(private http: HttpClient) { }
 
-      const dataDailySalesChart: any = {
-          labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-          series: [
-              [12, 17, 7, 17, 23, 18, 38]
-          ]
-      };
-
-     const optionsDailySalesChart: any = {
-          lineSmooth: Chartist.Interpolation.cardinal({
-              tension: 0
-          }),
-          low: 0,
-          high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: { top: 0, right: 0, bottom: 0, left: 0},
-      }
-
-      var dailySalesChart = new Chartist.Line('#dailySalesChart', dataDailySalesChart, optionsDailySalesChart);
-
-      this.startAnimationForLineChart(dailySalesChart);
-
-
-      /* ----------==========     Completed Tasks Chart initialization    ==========---------- */
-
-      const dataCompletedTasksChart: any = {
-          labels: ['12p', '3p', '6p', '9p', '12p', '3a', '6a', '9a'],
-          series: [
-              [230, 750, 450, 300, 280, 240, 200, 190]
-          ]
-      };
-
-     const optionsCompletedTasksChart: any = {
-          lineSmooth: Chartist.Interpolation.cardinal({
-              tension: 0
-          }),
-          low: 0,
-          high: 1000, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: { top: 0, right: 0, bottom: 0, left: 0}
-      }
-
-      var completedTasksChart = new Chartist.Line('#completedTasksChart', dataCompletedTasksChart, optionsCompletedTasksChart);
-
-      // start animation for the Completed Tasks Chart - Line Chart
-      this.startAnimationForLineChart(completedTasksChart);
-
-
-
-      /* ----------==========     Emails Subscription Chart initialization    ==========---------- */
-
-      var datawebsiteViewsChart = {
-        labels: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
-        series: [
-          [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895]
-
-        ]
-      };
-      var optionswebsiteViewsChart = {
-          axisX: {
-              showGrid: false
-          },
-          low: 0,
-          high: 1000,
-          chartPadding: { top: 0, right: 5, bottom: 0, left: 0}
-      };
-      var responsiveOptions: any[] = [
-        ['screen and (max-width: 640px)', {
-          seriesBarDistance: 5,
-          axisX: {
-            labelInterpolationFnc: function (value) {
-              return value[0];
-            }
-          }
-        }]
-      ];
-      var websiteViewsChart = new Chartist.Bar('#websiteViewsChart', datawebsiteViewsChart, optionswebsiteViewsChart, responsiveOptions);
-
-      //start animation for the Emails Subscription Chart
-      this.startAnimationForBarChart(websiteViewsChart);
+  ngOnInit(): void {
+    this.loadAll();
+    // Auto-refresh every 10 seconds
+    this.refreshInterval = setInterval(() => this.loadAll(), 10000);
   }
 
+  ngOnDestroy(): void {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
+
+  getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  }
+
+  loadAll(): void {
+    this.loadDepartments();
+    this.loadCameras();
+    this.loadStatuses();
+  }
+
+  loadDepartments(): void {
+    this.http.get<any[]>(`${this.API}/departments/public`).subscribe({
+      next: (data) => {
+        this.departments = data;
+        this.totalDepartments = data.length;
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  loadCameras(): void {
+    const headers = this.getHeaders();
+    this.http.get<any[]>(`${this.API}/cameras`, { headers }).subscribe({
+      next: (data) => {
+        this.cameras = data;
+        this.totalCameras = data.length;
+        this.activeCameras = data.filter(c => c.status === 'ACTIVE').length;
+      },
+      error: () => { }
+    });
+  }
+
+  loadStatuses(): void {
+    this.http.get<any[]>(`${this.API}/department-status`).subscribe({
+      next: (data) => {
+        this.statuses = data.slice(-20).reverse(); // last 20, newest first
+        this.alerts = data.filter(s => s.status === 'alert');
+        this.totalAlerts = this.alerts.length;
+      },
+      error: () => { }
+    });
+  }
+
+  getStatusClass(status: string): string {
+    return status === 'valid' ? 'badge-success' : 'badge-danger';
+  }
+
+  getStatusIcon(status: string): string {
+    return status === 'valid' ? 'check_circle' : 'warning';
+  }
+
+  getCameraStatusClass(status: string): string {
+    return status === 'ACTIVE' ? 'camera-online' : 'camera-offline';
+  }
+
+  formatTime(timestamp: string): string {
+    if (!timestamp) return '';
+    return new Date(timestamp).toLocaleTimeString('fr-FR');
+  }
+
+  formatDate(timestamp: string): string {
+    if (!timestamp) return '';
+    return new Date(timestamp).toLocaleDateString('fr-FR');
+  }
+
+  getDeptName(deptId: number): string {
+    const dept = this.departments.find(d => d.id === deptId);
+    return dept ? dept.name : `Dept #${deptId}`;
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '/login';
+  }
 }
