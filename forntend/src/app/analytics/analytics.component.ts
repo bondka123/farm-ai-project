@@ -10,24 +10,24 @@ import { AnalyticsService } from '../services/analytics.service';
 export class AnalyticsComponent implements OnInit, AfterViewInit {
 
   loading = true;
-  
+  private analyticsSub?: any;
+
   // Real Data Holders
   kpis = [
-    { title: 'Employees Present Today', value: '0', icon: 'people', color: 'purple', iconColor: '#9c27b0', trend: '0' },
-    { title: 'Total Working Hours', value: '0h', icon: 'schedule', color: 'cyan', iconColor: '#00bcd4', trend: '0' },
-    { title: 'Entries / Exits', value: '0', icon: 'swap_horiz', color: 'green', iconColor: '#4caf50', trend: '0' },
-    { title: 'Active Cameras', value: '0/0', icon: 'videocam', color: 'red', iconColor: '#f44336', trend: '0' }
+    { id: 'employees', title: 'Employees Present Today', value: '0', icon: 'people', color: 'purple', iconColor: '#9c27b0', trend: 'LIVE UPDATE' },
+    { id: 'hours', title: 'Total Working Hours', value: '0h', icon: 'schedule', color: 'cyan', iconColor: '#00bcd4', trend: 'LIVE UPDATE' },
+    { id: 'flux', title: 'Entries / Exits', value: '0 / 0', icon: 'swap_horiz', color: 'green', iconColor: '#4caf50', trend: 'LIVE UPDATE' },
+    { id: 'cameras', title: 'Active Cameras', value: '0/0', icon: 'videocam', color: 'red', iconColor: '#f44336', trend: 'LIVE UPDATE' }
   ];
 
+  alertsCount = 0;
   aiInsights: string[] = [];
-  attendanceData: any[] = [];
-  alerts: any[] = [];
-  cameraActivity: any[] = [];
+  cameraStatusList: any[] = [];
 
   colorLegend = [
-    { name: 'RED', color: '#f44336' },
-    { name: 'BLUE', color: '#2196f3' },
-    { name: 'YELLOW', color: '#ffeb3b' },
+    { name: 'DOCTOR', color: '#f44336' },
+    { name: 'WORKER', color: '#2196f3' },
+    { name: 'SECURITY', color: '#ffeb3b' },
     { name: 'OTHER', color: '#9e9e9e' }
   ];
 
@@ -35,116 +35,111 @@ export class AnalyticsComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.fetchData();
+    this.initRealTimeConnection();
   }
 
-  ngAfterViewInit() {
-    // Charts will be initialized after data is loaded
+  ngOnDestroy(): void {
+    if (this.analyticsSub) {
+      this.analyticsSub.unsubscribe();
+    }
   }
 
-  fetchData() {
-    this.analyticsService.getDashboardData().subscribe({
-      next: (data) => {
-        this.processData(data);
-        this.loading = false;
-        // Re-init charts with real data if possible
-        setTimeout(() => {
-          this.initPresenceChart(data.attendance);
-          this.initColorChart();
-        }, 500);
+  initRealTimeConnection() {
+    this.analyticsSub = this.analyticsService.listenToAnalytics().subscribe({
+      next: (liveData) => {
+        console.log("LIVE ANALYTICS UPDATE:", liveData);
+        this.updateStatsFromLive(liveData);
       },
       error: (err) => {
-        console.error("Error fetching analytics data:", err);
-        this.loading = false;
+        console.error("WebSocket Connection Failed. Retrying in 5s...", err);
+        setTimeout(() => this.initRealTimeConnection(), 5000);
       }
     });
   }
 
-  processData(data: any) {
-    // 1. Process KPIs
-    const presentCount = data.attendance.filter(a => !a.timeOut).length;
-    this.kpis[0].value = presentCount.toString();
-    this.kpis[0].trend = ((presentCount / (data.employees.length || 1)) * 100).toFixed(0);
+  updateStatsFromLive(data: any) {
+    // 🔴 Règle: SI totalEntries == 0 && totalExits == 0 -> No data
+    const entries = data.totalEntries || 0;
+    const exits = data.totalExits || 0;
+    const activeCams = data.activeCameras || 0;
+    const totalCams = data.totalCameras || 0;
 
-    this.kpis[1].value = (data.attendance.length * 8) + "h"; // Simple estimation
-    this.kpis[2].value = data.attendance.length.toString();
-    
-    const activeCams = data.cameras.filter(c => c.status === 'ACTIVE').length;
-    this.kpis[3].value = `${activeCams}/${data.cameras.length}`;
+    let employees = data.currentEmployees || 0;
 
-    // 2. Process AI Insights
-    this.aiInsights = [
-      `✅ ${presentCount} employees currently detected in the building.`,
-      `⚠️ ${data.alerts.filter(a => a.level === 'HIGH').length} critical alerts require attention.`,
-      `📷 ${data.cameras.length} cameras active in ${new Set(data.cameras.map(c => c.location)).size} zones.`,
-      `💡 Optimization: Peak entrance detected between 08:00 and 09:00.`
-    ];
+    if (entries === 0 && exits === 0) {
+      employees = 0;
+    }
 
-    // 3. Process Attendance Table (last 5)
-    this.attendanceData = data.attendance.slice(-5).map(a => ({
-      name: a.employeeName || 'Unknown',
-      date: a.date || '--',
-      in: a.timeIn || '--',
-      out: a.timeOut || '--',
-      status: a.timeOut ? 'FINISHED' : 'PRESENT'
-    })).reverse();
+    if (activeCams === 0) {
+      employees = 0;
+    }
 
-    // 4. Process Alerts
-    this.alerts = data.alerts.slice(-3).map(a => ({
-      title: a.type || 'Security Alert',
-      time: a.createdAt ? new Date(a.createdAt).toLocaleTimeString() : '--',
-      location: a.cameraId ? `Camera ${a.cameraId}` : 'Unknown',
-      level: a.level?.toLowerCase() || 'medium',
-      confidence: 85
-    })).reverse();
+    // Update KPIs
+    this.kpis[0].value = employees.toString();
+    this.kpis[1].value = (entries * 0.4).toFixed(1) + 'h';
+    this.kpis[2].value = `${entries} / ${exits}`;
+    this.kpis[3].value = `${activeCams}/${totalCams}`;
 
-    // 5. Process Camera Activity
-    this.cameraActivity = data.cameras.map(c => ({
-      name: c.name,
-      detections: Math.floor(Math.random() * 100), // Mocked activity
-      activity: c.status === 'ACTIVE' ? 80 : 0,
-      online: c.status === 'ACTIVE'
-    }));
+    if (data.alertsCount !== undefined) {
+      this.alertsCount = data.alertsCount;
+    }
+
+    // Update Insights
+    if (data.insights) {
+      this.aiInsights = data.insights;
+    }
+
+    // Update Camera Status List
+    if (data.cameraStatusList) {
+      this.cameraStatusList = data.cameraStatusList;
+    }
+
+    // Update Charts ONLY if real data exists
+    if (employees > 0) {
+      if (data.hourlyStats) {
+        this.updateChartFromLive(data.hourlyStats);
+      }
+      if (data.uniformStats) {
+        this.updateColorChartFromLive(data.uniformStats);
+      }
+    }
   }
 
-  initPresenceChart(attendance: any[]) {
-    // Group attendance by hour
+  updateChartFromLive(hourlyStatsMap: any) {
     const hoursLabels = ['08h', '10h', '12h', '14h', '16h', '18h', '20h', '22h'];
-    const counts = [0, 0, 0, 0, 0, 0, 0, 0];
-    
-    attendance.forEach(a => {
-      if (a.timestamp) {
-        const date = new Date(a.timestamp);
-        const hour = date.getHours();
-        
-        if (hour >= 8 && hour <= 23) {
-          const idx = Math.floor((hour - 8) / 2);
-          if (idx >= 0 && idx < counts.length) {
-            counts[idx]++;
-          }
-        }
-      }
-    });
+    const seriesData = [];
+
+    // Map discrete hours to the labels
+    for (let h of [8, 10, 12, 14, 16, 18, 20, 22]) {
+      seriesData.push(hourlyStatsMap[h] || 0);
+    }
 
     const dataPresenceChart: any = {
       labels: hoursLabels,
-      series: [counts]
+      series: [seriesData]
     };
 
-    const optionsPresenceChart: any = {
+    const options = {
       lineSmooth: Chartist.Interpolation.cardinal({ tension: 0.4 }),
       low: 0,
+      high: Math.max(...seriesData, 5),
       showArea: true,
-      chartPadding: { top: 20, right: 20, bottom: 0, left: 0},
+      chartPadding: { top: 20, right: 20, bottom: 0, left: 0 },
       axisY: { onlyInteger: true }
     };
 
-    new Chartist.Line('#presenceChart', dataPresenceChart, optionsPresenceChart);
+    new Chartist.Line('#presenceChart', dataPresenceChart, options);
   }
 
-  initColorChart() {
-    const dataColorChart = {
-      series: [45, 25, 20, 10] // Keep mocked color analysis as it's not yet in the common DB
-    };
+  updateColorChartFromLive(uniformStats: any) {
+    const series = [
+      uniformStats.doctor || 0,
+      uniformStats.worker || 0,
+      uniformStats.security || 0,
+      uniformStats.other || 0
+    ];
+
+    const dataColorChart = { series };
 
     const optionsColorChart = {
       donut: true,
@@ -154,5 +149,27 @@ export class AnalyticsComponent implements OnInit, AfterViewInit {
     };
 
     new Chartist.Pie('#colorChart', dataColorChart, optionsColorChart);
+  }
+
+  ngAfterViewInit() {
+    // Initial empty state
+  }
+
+  fetchData() {
+    this.analyticsService.getDashboardData().subscribe({
+      next: (data) => {
+        this.processInitialData(data);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error("Error fetching analytics data:", err);
+        this.loading = false;
+      }
+    });
+  }
+
+  processInitialData(data: any) {
+    const stats = data.stats || {};
+    this.updateStatsFromLive(stats);
   }
 }

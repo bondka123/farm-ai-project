@@ -46,7 +46,9 @@ public class SecurityConfig {
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/api/alerts/ai-detection").permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers("/api/ai/status/**").permitAll()
+                .requestMatchers("/api/ai/**").permitAll()
+                .requestMatchers("/ws/analytics/**").permitAll()
+                .requestMatchers("/ws-stomp/**").permitAll()
 
 
 

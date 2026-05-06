@@ -13,15 +13,18 @@ from collections import Counter
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", type=str, default="0")
 parser.add_argument("--camera_id", type=str, default="1")
+parser.add_argument("--type", type=str, default="INTERNAL") # INTERNAL or ENTRY
 args = parser.parse_args()
 
 CAMERA_SOURCE = int(args.source) if args.source.isdigit() else args.source
 CAMERA_ID = args.camera_id
+CAMERA_TYPE = args.type.upper()
 
 # =========================
 # CONFIG
 # =========================
 BACKEND_URL = "http://localhost:8081/api/department-status"
+ANALYTICS_URL = "http://localhost:8081/api/ai/events"
 model = YOLO("yolov8n.pt") # Ensure this file exists in ai_system
 
 def get_dominant_color(image, k=3):
@@ -54,6 +57,23 @@ def classify_role(rgb):
         return "electricien"
     
     return "unknown"
+
+def send_analytics(detected, recognized, unknown):
+    try:
+        payload = {
+            "cameraId": str(CAMERA_ID),
+            "cameraType": CAMERA_TYPE,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "detected": int(detected),
+            "recognized": int(recognized),
+            "unknown": int(unknown),
+            "entries": 0,
+            "exits": 0,
+            "departmentId": 1
+        }
+        requests.post(ANALYTICS_URL, json=payload, timeout=1)
+    except:
+        pass
 
 # =========================
 # LOOP
@@ -126,6 +146,10 @@ while True:
         try:
             requests.post(BACKEND_URL, json=payload, timeout=2)
             print(f"📤 SENT AGGREGATED STATUS (Tracks: {len(track_buffer)}): {payload['counts']}")
+            
+            # Also send to analytics
+            send_analytics(len(track_buffer), len(track_buffer) - (1 if has_unknown else 0), 1 if has_unknown else 0)
+            
         except Exception as e:
             print("❌ SEND ERROR:", e)
             

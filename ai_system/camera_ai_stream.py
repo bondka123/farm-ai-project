@@ -116,6 +116,21 @@ while True:
                 last_upload_time = current_time
         except Exception:
             pass
+            
+        # 📊 ENVOI VERS ANALYTICS (TEMPS RÉEL)
+        from datetime import datetime
+        event_data = {
+            "cameraId": str(CAMERA_ID),
+            "cameraType": "ENTRY" if CAMERA_ID == 1 else "INTERNAL",
+            "entries": len(faces) if CAMERA_ID == 1 else 0,
+            "exits": 0,
+            "detected": len(faces),
+            "timestamp": datetime.now().isoformat()
+        }
+        try:
+            requests.post("http://localhost:8081/api/ai/events", json=event_data, timeout=5)
+        except Exception:
+            pass
 
     # Optionnel: cv2.imshow si besoin en local
     # cv2.imshow(f"Cam {CAMERA_ID}", display_frame)

@@ -23,7 +23,7 @@ export class CameraService {
 
   API = 'http://localhost:8081/api/cameras';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(): Observable<Camera[]> {
     return this.http.get<Camera[]>(this.API);

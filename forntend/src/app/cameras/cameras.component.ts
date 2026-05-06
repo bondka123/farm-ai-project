@@ -20,7 +20,7 @@ export class CamerasComponent implements OnInit, OnDestroy {
   private isCapturingStream = false;
   cameraInitialized = false;
   imgTimestamp = Date.now();
-  aiStatus: {[key: number]: boolean} = {}; // 🔥 Suivi par caméra
+  aiStatus: { [key: number]: boolean } = {}; // 🔥 Suivi par caméra
 
   editMode = false;
   editId?: number;
@@ -40,7 +40,7 @@ export class CamerasComponent implements OnInit, OnDestroy {
     private departmentService: DepartmentService,
     private http: HttpClient,
     private sanitizer: DomSanitizer
-  ) {}
+  ) { }
 
   // =========================
   // INIT
@@ -80,10 +80,10 @@ export class CamerasComponent implements OnInit, OnDestroy {
   loadCameras() {
     this.cameraService.getAll().subscribe(res => {
       this.cameras = res;
-      
+
       // ✅ On ne tente la capture locale QUE si on n'a pas déjà un flux d'images (AI)
       const hasLocalActiveDirect = this.cameras.some(c => c.status === 'ACTIVE' && this.isLocal(c.source) && !c.lastImage);
-      
+
       if (hasLocalActiveDirect && !this.sharedStream) {
         this.initSharedWebcam();
       } else if (this.sharedStream) {
@@ -190,18 +190,18 @@ export class CamerasComponent implements OnInit, OnDestroy {
   }
 
   checkAIStatus(cameraId: number) {
-    this.http.get<{running: boolean}>(`http://localhost:8081/api/ai/status/${cameraId}`)
+    this.http.get<{ running: boolean }>(`http://localhost:8081/api/ai/status/${cameraId}`)
       .subscribe(res => this.aiStatus[cameraId] = res.running);
   }
 
   toggleAI(cam: Camera) {
     if (!cam.id) return;
-    
+
     const isRunning = this.aiStatus[cam.id];
     const endpoint = isRunning ? 'stop' : 'start';
     const payload = isRunning ? { cameraId: cam.id } : { cameraId: cam.id, source: cam.source, type: cam.type };
 
-    this.http.post<{running: boolean}>(`http://localhost:8081/api/ai/${endpoint}`, payload)
+    this.http.post<{ running: boolean }>(`http://localhost:8081/api/ai/${endpoint}`, payload)
       .subscribe(res => {
         this.aiStatus[cam.id!] = res.running;
         this.loadCameras();
@@ -228,27 +228,27 @@ export class CamerasComponent implements OnInit, OnDestroy {
 
     this.isCapturingStream = true;
     console.log("📸 CAPTURING SHARED WEBCAM STREAM...");
-    
-    navigator.mediaDevices.getUserMedia({ 
-      video: { width: 1280, height: 720 }, 
-      audio: false 
+
+    navigator.mediaDevices.getUserMedia({
+      video: { width: 1280, height: 720 },
+      audio: false
     })
-    .then(stream => {
-      this.sharedStream = stream;
-      this.isCapturingStream = false;
-      this.assignSharedStream();
-    })
-    .catch(err => {
-      this.isCapturingStream = false;
-      console.error("❌ Erreur d'accès à la webcam locale", err);
-    });
+      .then(stream => {
+        this.sharedStream = stream;
+        this.isCapturingStream = false;
+        this.assignSharedStream();
+      })
+      .catch(err => {
+        this.isCapturingStream = false;
+        console.error("❌ Erreur d'accès à la webcam locale", err);
+      });
   }
 
   assignSharedStream() {
     if (!this.sharedStream || !this.videoPlayers) return;
 
     const players = this.videoPlayers.toArray();
-    
+
     // 🔥 Si aucun élément <video> n'est dans le DOM, on peut libérer le flux
     if (players.length === 0) {
       this.stopSharedStream();
