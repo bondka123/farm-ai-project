@@ -2,74 +2,68 @@
   <div class="container-fluid">
     
     <div class="row">
-      <!-- 🤵 MON PROFIL -->
+      <div class="col-md-12">
+        <h2 class="section-title"><i class="material-icons">account_circle</i> PROFIL OPÉRATIONNEL</h2>
+      </div>
+    </div>
+
+    <div *ngIf="message" class="alert-premium" [ngClass]="isError ? 'alert-danger-premium' : 'alert-success-premium'">
+      <i class="material-icons">{{ isError ? 'error' : 'check_circle' }}</i>
+      <span>{{ message }}</span>
+    </div>
+
+    <div class="row">
+      <!-- 🤵 MON PROFIL SUMMARY -->
       <div class="col-md-8">
-        <div class="card glass-card">
-          <div class="card-header card-header-purple">
-            <h4 class="card-title text-white font-weight-bold">👤 MON PROFIL SÉCURISÉ</h4>
-            <p class="card-category text-white-50">Gérez vos informations personnelles et identifiants</p>
+        <div class="card glass-card fade-in">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="card-title">IDENTITÉ SÉCURISÉE</h4>
+              <p class="category">Gestion des paramètres de l'agent de commandement</p>
+            </div>
+            <button class="btn btn-primary btn-round" (click)="openEditModal()">
+              <i class="material-icons">edit</i> MODIFIER LE PROFIL
+            </button>
           </div>
           <div class="card-body p-4">
-            <form>
-              <div class="row mt-3">
-                <div class="col-md-5">
-                  <div class="form-group">
-                    <label>RÔLE SYSTÈME</label>
-                    <input type="text" class="form-control" disabled value="Administrateur Principal">
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label>IDENTIFIANT</label>
-                    <input type="text" class="form-control" value="admin_farm">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" value="admin@farm-ai.com">
-                  </div>
-                </div>
+            <div class="profile-summary">
+              <div class="summary-item">
+                <span class="summary-label">RÔLE SYSTÈME</span>
+                <span class="summary-value badge badge-info">Administrateur Principal</span>
               </div>
-
-              <div class="row mt-4">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>PRÉNOM</label>
-                    <input type="text" class="form-control" value="Admin">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NOM</label>
-                    <input type="text" class="form-control" value="FarmAI">
-                  </div>
-                </div>
+              <div class="summary-item">
+                <span class="summary-label">IDENTIFIANT UNITÉ</span>
+                <span class="summary-value">{{ currentEmployee?.id || 'admin_farm' }}</span>
               </div>
-
-              <button type="submit" class="btn btn-primary pull-right mt-4 px-4 shadow-purple">METTRE À JOUR MES INFOS</button>
-              <div class="clearfix"></div>
-            </form>
+              <div class="summary-item">
+                <span class="summary-label">NOM COMPLET</span>
+                <span class="summary-value text-white font-weight-bold">{{ currentEmployee?.name || 'Admin FarmAI' }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">ADRESSE EMAIL SÉCURISÉE</span>
+                <span class="summary-value">{{ currentEmployee?.email || 'admin@farm-ai.com' }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 🛡️ BIOMÉTRIE & SÉCURITÉ -->
       <div class="col-md-4">
-        <div class="card glass-card text-center py-5">
+        <div class="card glass-card text-center py-5 fade-in">
           <div class="card-body">
             <div class="icon-security-wrapper mb-4">
-              <i class="material-icons" style="font-size: 80px; color: #9c27b0;">face</i>
+              <i class="material-icons" style="font-size: 80px; color: #00ffff; text-shadow: 0 0 20px rgba(0, 255, 255, 0.4);">face</i>
             </div>
-            <h4 class="text-white font-weight-bold mb-3">BIOMÉTRIE FACIALE</h4>
-            <p class="text-white-50 px-3">Enregistrez votre visage pour activer l'authentification biométrique sans mot de passe.</p>
+            <h4 class="card-title mb-3">BIOMÉTRIE FACIALE</h4>
+            <p class="text-muted px-3">Enregistrez votre signature faciale pour activer l'authentification CORE-AI sans mot de passe.</p>
             
             <div class="mt-5 px-3">
-               <button class="btn btn-primary btn-block py-3 mb-3" (click)="registerFace()">
-                 <i class="material-icons mr-2">camera_enhance</i> ENREGISTRER MON VISAGE
+               <button class="btn btn-primary btn-block py-3 mb-3" (click)="registerFace()" [disabled]="loading">
+                 <i class="material-icons mr-2">camera_enhance</i> DÉBUTER LE SCAN FACIAL
                </button>
-               <button class="btn btn-outline-danger btn-block btn-sm" (click)="deleteFace()">
-                 <i class="material-icons mr-2" style="font-size: 14px;">delete_forever</i> SUPPRIMER MES DONNÉES BIO
+               <button class="btn btn-danger btn-block btn-sm" (click)="deleteFace()" [disabled]="loading">
+                 <i class="material-icons mr-2" style="font-size: 14px;">delete_forever</i> RÉVOQUER LES DONNÉES BIO
                </button>
             </div>
           </div>
@@ -80,18 +74,157 @@
   </div>
 </div>
 
+<!-- 🌌 MODAL : EDIT PROFILE -->
+<div class="form-overlay" *ngIf="showEditModal">
+  <div class="form-modal">
+    <div class="modal-header">
+      <div>
+        <h2>EDIT PROFILE</h2>
+        <p>Update information related to your commander profile</p>
+      </div>
+      <button class="btn-close-modal" (click)="closeEditModal()">×</button>
+    </div>
+
+    <form (ngSubmit)="closeEditModal()">
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="form-group">
+            <label>FULL NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="editName" name="editName" placeholder="e.g. Admin FarmAI" required>
+          </div>
+          <div class="form-group">
+            <label>EMAIL ADDRESS</label>
+            <input type="email" class="form-control" [(ngModel)]="editEmail" name="editEmail" placeholder="admin@farm-ai.com" required>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>JOB DESCRIPTION</label>
+            <textarea class="form-control" placeholder="Describe your operational duties..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel-modal" (click)="closeEditModal()">CANCEL</button>
+        <button type="submit" class="btn-save-modal">
+          <i class="material-icons">save</i>
+          SAVE PROFILE
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <style>
+/* 🌌 ULTRA-PREMIUM MODAL FIX */
+::ng-deep .form-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(2, 4, 10, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 24px !important;
+  margin: 0 !important;
+}
+
+::ng-deep .form-modal {
+  width: 900px !important;
+  max-width: 92vw !important;
+  max-height: 88vh !important;
+  background: #111827 !important;
+  border: 1px solid rgba(0, 255, 255, 0.15) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  position: relative !important;
+  animation: modalAppear 0.3s ease-out !important;
+}
+
+::ng-deep .form-modal form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
+@keyframes modalAppear {
+  from { opacity: 0; transform: translateY(20px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+::ng-deep body.modal-open {
+  overflow: hidden !important;
+}
+
+.section-title {
+  color: #00ffff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 2px;
+}
+.section-title i { margin-right: 15px; font-size: 32px; color: #00ffff; }
+
+.profile-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summary-label {
+  color: #00ffff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.summary-value {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+}
+
 .icon-security-wrapper {
   width: 120px;
   height: 120px;
-  background: rgba(156, 39, 176, 0.1);
+  background: rgba(0, 255, 255, 0.05);
   border-radius: 50%;
   margin: 0 auto;
   line-height: 120px;
-  border: 1px solid rgba(156, 39, 176, 0.3);
-  box-shadow: 0 0 20px rgba(156, 39, 176, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
 }
-.shadow-purple {
-  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4) !important;
+
+.alert-premium {
+  padding: 15px 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
 }
+.alert-premium i { margin-right: 15px; }
+.alert-success-premium { background: rgba(0, 255, 255, 0.1); color: #00ffff; border: 1px solid rgba(0, 255, 255, 0.2); }
+.alert-danger-premium { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.2); }
+
+.btn-round { border-radius: 30px !important; }
 </style>

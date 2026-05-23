@@ -13,6 +13,20 @@ export class ViewersComponent implements OnInit {
   editMode = false;
   editId: number | null = null;
   loading = false;
+  showModal = false;
+
+  openModal() {
+    this.editMode = false;
+    this.viewer = this.resetForm();
+    this.showModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeModal() {
+    this.showModal = false;
+    document.body.classList.remove('modal-open');
+    this.reset();
+  }
 
   constructor(private service: UserService) {}
 
@@ -67,6 +81,8 @@ export class ViewersComponent implements OnInit {
           }
 
           alert("Viewer mis à jour ✅");
+          this.showModal = false;
+          document.body.classList.remove('modal-open');
           this.reset();
         },
         error: (err) => {
@@ -87,6 +103,8 @@ export class ViewersComponent implements OnInit {
           this.viewers.unshift(newViewer);
 
           alert("Viewer créé + email envoyé ✅");
+          this.showModal = false;
+          document.body.classList.remove('modal-open');
           this.reset();
         },
         error: (err) => {
@@ -113,6 +131,8 @@ export class ViewersComponent implements OnInit {
     this.viewer = { ...v };
     this.editMode = true;
     this.editId = v.id!;
+    this.showModal = true;
+    document.body.classList.add('modal-open');
   }
 
   // =========================
@@ -153,6 +173,7 @@ export class ViewersComponent implements OnInit {
     this.viewer = this.resetForm();
     this.editMode = false;
     this.editId = null;
+    document.body.classList.remove('modal-open');
   }
 
   // =========================

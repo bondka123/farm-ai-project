@@ -1,77 +1,9 @@
 <div class="main-content">
   <div class="container-fluid">
-    
+
     <div class="row">
       <div class="col-md-12">
         <h2 class="section-title"><i class="material-icons">videocam</i> RÉSEAU DE SURVEILLANCE</h2>
-      </div>
-    </div>
-
-    <!-- 🎥 AJOUTER / MODIFIER CAMÉRA -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">{{ editMode ? 'MODIFIER LA CAMÉRA' : 'AJOUTER UNE NOUVELLE UNITÉ' }}</h4>
-            <p class="category">Configuration du flux vidéo et de la zone de détection</p>
-          </div>
-          <div class="card-body p-4">
-            <form (ngSubmit)="save()">
-              <div class="row">
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label>NOM DE L'APPAREIL</label>
-                    <input type="text" class="form-control" [(ngModel)]="cameraForm.name" name="name" placeholder="Ex: CAM-ENTRÉE-01" required>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label>ZONE / LOCALISATION</label>
-                    <input type="text" class="form-control" [(ngModel)]="cameraForm.location" name="location" placeholder="Ex: Hall Principal" required>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label>DÉPARTEMENT</label>
-                    <select class="form-control" [(ngModel)]="cameraForm.departmentId" name="deptId" required>
-                      <option [ngValue]="null" disabled selected>Choisir un département...</option>
-                      <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label>MODE INTELLIGENT (IA)</label>
-                    <select class="form-control" [(ngModel)]="cameraForm.type" name="type" required>
-                      <option value="" disabled selected>Choisir le mode...</option>
-                      <option value="FACE">RECONNAISSANCE FACIALE</option>
-                      <option value="COLOR">DÉTECTION COULEUR (RÔLES)</option>
-                      <option value="DEFAULT">FLUX SIMPLE</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row mt-3">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>SOURCE VIDÉO (URL OU INDEX)</label>
-                    <input type="text" class="form-control" [(ngModel)]="cameraForm.source" name="source" placeholder="rtsp://admin:pass@192.168.1.100..." required>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-4">
-                <div class="col-md-12 text-right">
-                  <button type="button" class="btn btn-secondary mr-2" (click)="resetForm()" *ngIf="editMode">ANNULER</button>
-                  <button type="submit" class="btn btn-primary px-5">
-                    <i class="material-icons">{{ editMode ? 'sync' : 'add_a_photo' }}</i>
-                    {{ editMode ? 'METTRE À JOUR' : 'ACTIVER LA CAMÉRA' }}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -80,8 +12,8 @@
       <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h3 class="text-white font-weight-bold mb-0">UNITÉS CONNECTÉES</h3>
-          <button class="btn btn-primary" (click)="resetForm()">
-            <i class="material-icons">add</i> AJOUTER CAMÉRA
+          <button class="btn btn-primary btn-round" (click)="openModal()">
+            <i class="material-icons">add_a_photo</i> CONFIGURER NOUVELLE UNITÉ
           </button>
         </div>
 
@@ -92,17 +24,20 @@
                 <div *ngIf="cam.status === 'ACTIVE'" class="live-indicator">
                   <span class="dot"></span> LIVE
                 </div>
-                
+
                 <!-- CAMERA FEED -->
                 <ng-container *ngIf="cam.status === 'ACTIVE'">
                   <!-- Flux HTTP (MJPEG/HLS) -->
                   <img *ngIf="isUrl(cam.source)" [src]="getSafeUrl(cam.source)" class="camera-feed" />
-                  
+
                   <!-- Caméra Locale (AI Stream) -->
-                  <img *ngIf="isLocal(cam.source) && cam.lastImage" [src]="'http://localhost:8081/api/upload/files/' + cam.lastImage + '?t=' + imgTimestamp" class="camera-feed" />
+                  <img *ngIf="isLocal(cam.source) && cam.lastImage"
+                    [src]="'http://localhost:8081/api/upload/files/' + cam.lastImage + '?t=' + imgTimestamp"
+                    class="camera-feed" />
 
                   <!-- Caméra Locale (Direct - Fallback if no AI) -->
-                  <video *ngIf="isLocal(cam.source) && !cam.lastImage" #videoPlayer [id]="'video-' + cam.id" class="camera-feed" autoplay muted playsinline></video>
+                  <video *ngIf="isLocal(cam.source) && !cam.lastImage" #videoPlayer [id]="'video-' + cam.id"
+                    class="camera-feed" autoplay muted playsinline></video>
                 </ng-container>
 
                 <!-- OFFLINE ICON -->
@@ -115,11 +50,9 @@
                   <h5 class="text-white font-weight-bold mb-0">{{ cam.name }}</h5>
                   <div class="d-flex align-items-center">
                     <!-- Toggle IA pour cette caméra -->
-                    <button class="btn btn-sm btn-icon mr-2" 
-                            [class.btn-warning]="aiStatus[cam.id!]" 
-                            [class.btn-outline-warning]="!aiStatus[cam.id!]"
-                            (click)="toggleAI(cam)"
-                            title="Toggle IA Recognition">
+                    <button class="btn btn-sm btn-icon mr-2" [class.btn-warning]="aiStatus[cam.id!]"
+                      [class.btn-outline-warning]="!aiStatus[cam.id!]" (click)="toggleAI(cam)"
+                      title="Toggle IA Recognition">
                       <i class="material-icons" style="font-size: 18px;">psychology</i>
                     </button>
                     <span [class]="'status-badge ' + (cam.status === 'ACTIVE' ? 'online' : 'offline')">
@@ -128,9 +61,10 @@
                   </div>
                 </div>
                 <div class="text-muted small mb-3">
-                  <i class="material-icons x-small">place</i> {{ cam.location }} | {{ cam.department?.name || 'Général' }}
+                  <i class="material-icons x-small">place</i> {{ cam.location }} | {{ cam.department?.name || 'Général'
+                  }}
                 </div>
-                
+
                 <div class="d-flex justify-content-end border-top border-dark pt-3">
                   <button class="btn btn-link btn-info btn-sm" (click)="edit(cam)">
                     <i class="material-icons">edit</i>
@@ -154,77 +88,73 @@
   </div>
 </div>
 
-<style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
+<!-- 🌌 PREMIUM CENTERED MODAL -->
+<div class="form-overlay" *ngIf="showModal">
+  <div class="form-modal">
 
-.camera-preview {
-  height: 160px;
-  background: #000;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+    <div class="modal-header">
+      <div>
+        <h2>{{ editMode ? 'CONFIGURATION UNITÉ' : 'NEW CAMERA UNIT' }}</h2>
+        <p>Paramétrage du flux vidéo haute précision et zone de détection AI</p>
+      </div>
+      <button class="btn-close-modal" (click)="closeModal()">×</button>
+    </div>
 
-.camera-feed {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    <form (ngSubmit)="save()" #camForm="ngForm">
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="form-group">
+            <label>DEVICE NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="cameraForm.name" name="name"
+              placeholder="e.g. CAM-ENTRANCE-01" required>
+          </div>
+          <div class="form-group">
+            <label>ZONE / LOCATION</label>
+            <input type="text" class="form-control" [(ngModel)]="cameraForm.location" name="location"
+              placeholder="e.g. Main Hall" required>
+          </div>
+          <div class="form-group">
+            <label>DEPARTMENT</label>
+            <select class="form-control" [(ngModel)]="cameraForm.departmentId" name="deptId" required>
+              <option [ngValue]="null" disabled selected>No Department</option>
+              <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CONNECTION TYPE</label>
+            <select class="form-control" [(ngModel)]="cameraForm.protocol" name="protocol">
+              <option value="RTSP">RTSP (Network Stream)</option>
+              <option value="LOCAL">LOCAL (USB Webcam)</option>
+              <option value="HTTP">HTTP (MJPEG/HLS)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>AI MODE</label>
+            <select class="form-control" [(ngModel)]="cameraForm.type" name="type" required>
+              <option value="" disabled selected>Choisir le mode...</option>
+              <option value="FACE">FACIAL RECOGNITION</option>
+              <option value="COLOR">DÉTECTION COULEUR (RÔLES)</option>
+              <option value="DEFAULT">FLUX SIMPLE</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>VIDEO SOURCE</label>
+            <input type="text" class="form-control" [(ngModel)]="cameraForm.source" name="source"
+              placeholder="0 (webcam) or rtsp://admin:pass@192.168.1.100:554/stream" required>
+            <small style="color: #3b82f6; font-size: 0.7rem; margin-top: 5px; display: block;">Use 0 for default webcam,
+              1 for second camera</small>
+          </div>
+        </div>
+      </div>
 
-.camera-preview .overlay i {
-  font-size: 48px;
-  color: rgba(255,255,255,0.1);
-}
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel-modal" (click)="closeModal()">CANCEL</button>
+        <button type="submit" class="btn-save-modal">
+          <i class="material-icons">add_a_photo</i>
+          {{ editMode ? 'SYNCHRONISER LES PARAMÈTRES' : 'ACTIVATE CAMERA' }}
+        </button>
+      </div>
+    </form>
 
-.live-indicator {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: rgba(244, 67, 54, 0.8);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  z-index: 2;
-}
-
-.live-indicator .dot {
-  width: 6px;
-  height: 6px;
-  background: #fff;
-  border-radius: 50%;
-  margin-right: 6px;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-.status-badge {
-  font-size: 9px;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-.online { background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
-.offline { background: rgba(244, 67, 54, 0.1); color: #f44336; border: 1px solid rgba(244, 67, 54, 0.3); }
-
-.hover-glow:hover {
-  transform: translateY(-5px);
-  border-color: var(--primary) !important;
-  box-shadow: 0 10px 30px rgba(156, 39, 176, 0.2) !important;
-}
-
-.x-small { font-size: 14px !important; vertical-align: middle; }
-</style>
+  </div>
+</div>

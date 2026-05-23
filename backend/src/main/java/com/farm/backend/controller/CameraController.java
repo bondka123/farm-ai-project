@@ -3,8 +3,14 @@ package com.farm.backend.controller;
 import com.farm.backend.entity.CameraEntity;
 import com.farm.backend.entity.Department;
 import com.farm.backend.repository.CameraRepository;
-import com.farm.backend.repository.DepartmentRepository;
+import com.farm.backend.repository.*;
+import com.farm.backend.entity.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Map;
+import java.util.HashMap;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -17,11 +23,23 @@ public class CameraController {
 
     private final CameraRepository cameraRepository;
     private final DepartmentRepository departmentRepository;
+    private final FaceEventRepository faceEventRepository;
+    private final RoleEventRepository roleEventRepository;
+    private final CameraAlertRepository alertRepository;
+    private final UnknownDetectionRepository unknownRepository;
 
     public CameraController(CameraRepository cameraRepository,
-                            DepartmentRepository departmentRepository) {
+                            DepartmentRepository departmentRepository,
+                            FaceEventRepository faceEventRepository,
+                            RoleEventRepository roleEventRepository,
+                            CameraAlertRepository alertRepository,
+                            UnknownDetectionRepository unknownRepository) {
         this.cameraRepository = cameraRepository;
         this.departmentRepository = departmentRepository;
+        this.faceEventRepository = faceEventRepository;
+        this.roleEventRepository = roleEventRepository;
+        this.alertRepository = alertRepository;
+        this.unknownRepository = unknownRepository;
     }
 
     // =========================
@@ -83,5 +101,35 @@ public class CameraController {
         cam.setStatus("OFF");
 
         return cameraRepository.save(cam);
+    }
+
+    // =========================
+    // ENTERPRISE HISTORY
+    // =========================
+    @GetMapping("/{id}/history")
+    public ResponseEntity<?> getHistory(@PathVariable Long id) {
+        Map<String, Object> history = new HashMap<>();
+        history.put("faceEvents", faceEventRepository.findByCameraIdOrderByTimestampDesc(id));
+        history.put("roleEvents", roleEventRepository.findByCameraIdOrderByTimestampDesc(id));
+        history.put("alerts", alertRepository.findByCameraIdOrderByTimestampDesc(id));
+        history.put("unknowns", unknownRepository.findByCameraIdOrderByTimestampDesc(id));
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/{id}/today")
+    public ResponseEntity<?> getTodayHistory(@PathVariable Long id) {
+        LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
+        
+        Map<String, Object> history = new HashMap<>();
+        history.put("faceEvents", faceEventRepository.findByCameraIdAndTimestampBetweenOrderByTimestampDesc(id, startOfDay, endOfDay));
+        history.put("roleEvents", roleEventRepository.findByCameraIdAndTimestampBetweenOrderByTimestampDesc(id, startOfDay, endOfDay));
+        
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/{id}/alerts")
+    public List<CameraAlert> getAlerts(@PathVariable Long id) {
+        return alertRepository.findByCameraIdOrderByTimestampDesc(id);
     }
 }

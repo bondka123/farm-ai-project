@@ -1,197 +1,202 @@
 <div class="main-content">
-    <div class="container-fluid">
-        <!-- Dashboard Header -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="dashboard-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="title" style="color: #fff; font-weight: 300;"><i class="material-icons" style="vertical-align: middle;">analytics</i> ANALYSES PRÉDICTIVES AI</h2>
-                        <p class="category" style="color: rgba(255,255,255,0.7);">Surveillance intelligente et flux de personnel en temps réel</p>
-                    </div>
-                    <div class="live-status-container">
-                        <span class="live-indicator-premium">
-                            <span class="dot-red pulse"></span>
-                            LIVE <span class="badge-red">🔴</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
+  <div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="dashboard-header d-flex justify-content-between align-items-center">
+          <div>
+            <h2 class="title" style="color: #fff; font-weight: 300;"><i class="material-icons"
+                style="vertical-align: middle;">analytics</i> ANALYSES PRÉDICTIVES AI</h2>
+            <p class="category" style="color: rgba(255,255,255,0.7);">Surveillance intelligente et flux de personnel en
+              temps réel</p>
+          </div>
+          <div class="live-status-container">
+            <span class="live-indicator-premium">
+              <span class="dot-red pulse"></span>
+              LIVE <span class="badge-red">🔴</span>
+            </span>
+          </div>
         </div>
-
-        <!-- KPI Cards -->
-        <div class="row mt-4">
-            <div class="col-lg-3 col-md-6 col-sm-6" *ngFor="let kpi of kpis; let i = index">
-                <div class="card card-stats premium-card glass-card shadow-lg" [ngClass]="{'large-kpi': i === 0}">
-                    <div class="card-header" [attr.data-background-color]="kpi.color">
-                        <i class="material-icons">{{kpi.icon}}</i>
-                    </div>
-                    <div class="card-content">
-                        <p class="category">{{kpi.title}}</p>
-                        <h3 class="title">{{kpi.value}}</h3>
-                    </div>
-                    <div class="card-footer">
-                        <div class="stats">
-                            <i class="material-icons" [style.color]="kpi.iconColor">update</i>
-                            <span class="live-badge">{{kpi.trend}}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Charts Section -->
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <!-- If Data Available -->
-                <div class="card premium-card glass-card shadow-lg chart-container" *ngIf="kpis[0].value !== '0'">
-                    <div class="card-header card-header-info" data-background-color="blue">
-                        <div class="ct-chart" id="presenceChart" style="height: 250px;"></div>
-                    </div>
-                    <div class="card-content">
-                        <h4 class="title"><i class="material-icons">timeline</i> FLUX DE CIRCULATION HORAIRE</h4>
-                        <p class="category">
-                            <span class="text-info"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">psychology</i> AI Powered </span> 
-                            Optimisation des ressources basée sur les entrées/sorties réelles.
-                        </p>
-                    </div>
-                    <div class="card-footer">
-                        <div class="stats">
-                            <i class="material-icons">access_time</i> Mise à jour instantanée
-                        </div>
-                    </div>
-                </div>
-
-                <!-- If No Data Available -->
-                <div class="card premium-card glass-card shadow-lg text-center p-5" *ngIf="kpis[0].value === '0'">
-                    <div class="card-content">
-                        <i class="material-icons text-danger" style="font-size: 48px; margin-bottom: 20px;">videocam_off</i>
-                        <h3 class="title" style="color: #ff5252; margin-top: 0;">No cameras connected</h3>
-                        <p class="category">En attente de connexion des terminaux AI...</p>
-                        <div class="spinner-grow text-danger mt-3" role="status"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Insights -->
-            <div class="col-md-4">
-                <div class="card premium-card glass-card shadow-lg insight-card">
-                    <div class="card-header" data-background-color="purple">
-                        <h4 class="title"><i class="material-icons">psychology</i> IA INSIGHTS GÉNÉRÉS</h4>
-                        <p class="category">Analyses en temps réel par le moteur YOLOv8</p>
-                    </div>
-                    <div class="card-content">
-                        <div class="insight-list" style="max-height: 250px; overflow-y: auto;">
-                            <div class="insight-item d-flex align-items-center p-2 mb-2 rounded" *ngFor="let insight of aiInsights" 
-                                 [ngClass]="{'alert-item': insight.includes('🔴') || insight.includes('🚨') || insight.includes('⚠️')}">
-                                <i class="material-icons mr-2" style="font-size: 18px;">
-                                    {{ insight.includes('🔴') || insight.includes('🚨') ? 'report_problem' : 'info' }}
-                                </i>
-                                <span>{{insight}}</span>
-                            </div>
-                            <div *ngIf="aiInsights.length === 0" class="insight-placeholder text-center p-4">
-                                <div class="spinner-border text-info mb-2" role="status"></div>
-                                <p class="text-muted">Analyse des flux en cours...</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="stats text-danger" *ngIf="alertsCount > 0">
-                            <i class="material-icons">notifications_active</i> {{alertsCount}} alertes actives
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Secondary Section -->
-        <div class="row mt-4">
-            <!-- Uniform Detection -->
-            <div class="col-md-4">
-                <div class="card premium-card glass-card shadow-lg">
-                    <div class="card-header" data-background-color="blue">
-                        <h4 class="title"><i class="material-icons">pie_chart</i> DÉTECTION D'UNIFORMES</h4>
-                        <p class="category">Analyse colorimétrique des tenues</p>
-                    </div>
-                    <div class="card-content text-center">
-                        <div class="ct-chart" id="colorChart" style="height: 180px;"></div>
-                        <div class="legend-container d-flex justify-content-around mt-3 flex-wrap">
-                            <div class="legend-item" *ngFor="let item of colorLegend">
-                                <span class="legend-dot" [style.background-color]="item.color"></span>
-                                <span class="legend-label">{{item.name}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Camera Signals -->
-            <div class="col-md-4">
-                <div class="card premium-card glass-card shadow-lg">
-                    <div class="card-header" data-background-color="red">
-                        <h4 class="title"><i class="material-icons">videocam</i> SIGNAL EN DIRECT DES CAMÉRAS</h4>
-                        <p class="category">État de connexion des terminaux AI</p>
-                    </div>
-                    <div class="card-content">
-                        <div class="camera-signal-list">
-                            <div class="camera-item d-flex justify-content-between align-items-center p-2 mb-2 rounded" *ngFor="let cam of cameraStatusList">
-                                <div class="cam-info">
-                                    <i class="material-icons">videocam</i>
-                                    <span>{{cam.name || 'Caméra ' + cam.id}}</span>
-                                </div>
-                                <div class="cam-status" [ngClass]="{'status-online': cam.status === 'ACTIVE', 'status-offline': cam.status !== 'ACTIVE'}">
-                                    <span class="status-dot"></span>
-                                    <span>{{cam.status}}</span>
-                                </div>
-                            </div>
-                            <div *ngIf="cameraStatusList.length === 0" class="text-center p-3 text-muted">
-                                No cameras detected.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Metrics -->
-            <div class="col-md-4">
-                <div class="card premium-card glass-card shadow-lg">
-                    <div class="card-header" data-background-color="purple">
-                        <h4 class="title"><i class="material-icons">speed</i> PERFORMANCE SYSTÈME</h4>
-                        <p class="category">Métriques d'infrastructure AI</p>
-                    </div>
-                    <div class="card-content">
-                        <div class="metric-item mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>Précision Reconnaissance</span>
-                                <span class="text-success">99.2%</span>
-                            </div>
-                            <div class="progress-custom">
-                                <div class="progress-bar-custom bg-success" style="width: 99%"></div>
-                            </div>
-                        </div>
-                        <div class="metric-item mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>Latence WebSocket</span>
-                                <span class="text-warning">42ms</span>
-                            </div>
-                            <div class="progress-custom">
-                                <div class="progress-bar-custom bg-warning" style="width: 20%"></div>
-                            </div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>Intégrité des Données</span>
-                                <span class="text-primary">High</span>
-                            </div>
-                            <div class="progress-custom">
-                                <div class="progress-bar-custom bg-primary" style="width: 95%"></div>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-center">
-                            <small class="text-muted">Moteur IA : YOLOv8 + InsightFace</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <!-- KPI Cards -->
+    <div class="row mt-4">
+      <div class="col-lg-3 col-md-6 col-sm-6" *ngFor="let kpi of kpis; let i = index">
+        <div class="card card-stats premium-card glass-card shadow-lg" [ngClass]="{'large-kpi': i === 0}">
+          <div class="card-header" [attr.data-background-color]="kpi.color">
+            <i class="material-icons">{{kpi.icon}}</i>
+          </div>
+          <div class="card-content">
+            <p class="category">{{kpi.title}}</p>
+            <h3 class="title">{{kpi.value}}</h3>
+          </div>
+          <div class="card-footer">
+            <div class="stats">
+              <i class="material-icons" [style.color]="kpi.iconColor">update</i>
+              <span class="live-badge">{{kpi.trend}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Charts Section -->
+    <div class="row mt-4">
+      <div class="col-md-8">
+        <!-- If Data Available -->
+        <div class="card premium-card glass-card shadow-lg chart-container" *ngIf="kpis[0].value !== '0'">
+          <div class="card-header card-header-info" data-background-color="blue">
+            <div class="ct-chart" id="presenceChart" style="height: 250px;"></div>
+          </div>
+          <div class="card-content">
+            <h4 class="title"><i class="material-icons">timeline</i> FLUX DE CIRCULATION HORAIRE</h4>
+            <p class="category">
+              <span class="text-info"><i class="material-icons"
+                  style="font-size: 14px; vertical-align: middle;">psychology</i> AI Powered </span>
+              Optimisation des ressources basée sur les entrées/sorties réelles.
+            </p>
+          </div>
+          <div class="card-footer">
+            <div class="stats">
+              <i class="material-icons">access_time</i> Mise à jour instantanée
+            </div>
+          </div>
+        </div>
+
+        <!-- If No Data Available -->
+        <div class="card premium-card glass-card shadow-lg text-center p-5" *ngIf="kpis[0].value === '0'">
+          <div class="card-content">
+            <i class="material-icons text-danger" style="font-size: 48px; margin-bottom: 20px;">videocam_off</i>
+            <h3 class="title" style="color: #ff5252; margin-top: 0;">No cameras connected</h3>
+            <p class="category">En attente de connexion des terminaux AI...</p>
+            <div class="spinner-grow text-danger mt-3" role="status"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Insights -->
+      <div class="col-md-4">
+        <div class="card premium-card glass-card shadow-lg insight-card">
+          <div class="card-header" data-background-color="purple">
+            <h4 class="title"><i class="material-icons">psychology</i> IA INSIGHTS GÉNÉRÉS</h4>
+            <p class="category">Analyses en temps réel par le moteur YOLOv8</p>
+          </div>
+          <div class="card-content">
+            <div class="insight-list" style="max-height: 250px; overflow-y: auto;">
+              <div class="insight-item d-flex align-items-center p-2 mb-2 rounded" *ngFor="let insight of aiInsights"
+                [ngClass]="{'alert-item': insight.includes('🔴') || insight.includes('🚨') || insight.includes('⚠️')}">
+                <i class="material-icons mr-2" style="font-size: 18px;">
+                  {{ insight.includes('🔴') || insight.includes('🚨') ? 'report_problem' : 'info' }}
+                </i>
+                <span>{{insight}}</span>
+              </div>
+              <div *ngIf="aiInsights.length === 0" class="insight-placeholder text-center p-4">
+                <div class="spinner-border text-info mb-2" role="status"></div>
+                <p class="text-muted">Analyse des flux en cours...</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="stats text-danger" *ngIf="alertsCount > 0">
+              <i class="material-icons">notifications_active</i> {{alertsCount}} alertes actives
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Section -->
+    <div class="row mt-4">
+      <!-- Uniform Detection -->
+      <div class="col-md-4">
+        <div class="card premium-card glass-card shadow-lg">
+          <div class="card-header" data-background-color="blue">
+            <h4 class="title"><i class="material-icons">pie_chart</i> DÉTECTION D'UNIFORMES</h4>
+            <p class="category">Analyse colorimétrique des tenues</p>
+          </div>
+          <div class="card-content text-center">
+            <div class="ct-chart" id="colorChart" style="height: 180px;"></div>
+            <div class="legend-container d-flex justify-content-around mt-3 flex-wrap">
+              <div class="legend-item" *ngFor="let item of colorLegend">
+                <span class="legend-dot" [style.background-color]="item.color"></span>
+                <span class="legend-label">{{item.name}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Camera Signals -->
+      <div class="col-md-4">
+        <div class="card premium-card glass-card shadow-lg">
+          <div class="card-header" data-background-color="red">
+            <h4 class="title"><i class="material-icons">videocam</i> SIGNAL EN DIRECT DES CAMÉRAS</h4>
+            <p class="category">État de connexion des terminaux AI</p>
+          </div>
+          <div class="card-content">
+            <div class="camera-signal-list">
+              <div class="camera-item d-flex justify-content-between align-items-center p-2 mb-2 rounded"
+                *ngFor="let cam of cameraStatusList">
+                <div class="cam-info">
+                  <i class="material-icons">videocam</i>
+                  <span>{{cam.name || 'Caméra ' + cam.id}}</span>
+                </div>
+                <div class="cam-status"
+                  [ngClass]="{'status-online': cam.status === 'ACTIVE', 'status-offline': cam.status !== 'ACTIVE'}">
+                  <span class="status-dot"></span>
+                  <span>{{cam.status}}</span>
+                </div>
+              </div>
+              <div *ngIf="cameraStatusList.length === 0" class="text-center p-3 text-muted">
+                No cameras detected.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Metrics -->
+      <div class="col-md-4">
+        <div class="card premium-card glass-card shadow-lg">
+          <div class="card-header" data-background-color="purple">
+            <h4 class="title"><i class="material-icons">speed</i> PERFORMANCE SYSTÈME</h4>
+            <p class="category">Métriques d'infrastructure AI</p>
+          </div>
+          <div class="card-content">
+            <div class="metric-item mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span>Précision Reconnaissance</span>
+                <span class="text-success">99.2%</span>
+              </div>
+              <div class="progress-custom">
+                <div class="progress-bar-custom bg-success" style="width: 99%"></div>
+              </div>
+            </div>
+            <div class="metric-item mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span>Latence WebSocket</span>
+                <span class="text-warning">42ms</span>
+              </div>
+              <div class="progress-custom">
+                <div class="progress-bar-custom bg-warning" style="width: 20%"></div>
+              </div>
+            </div>
+            <div class="metric-item">
+              <div class="d-flex justify-content-between mb-1">
+                <span>Intégrité des Données</span>
+                <span class="text-primary">High</span>
+              </div>
+              <div class="progress-custom">
+                <div class="progress-bar-custom bg-primary" style="width: 95%"></div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <small class="text-muted">Moteur IA : YOLOv8 + InsightFace</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

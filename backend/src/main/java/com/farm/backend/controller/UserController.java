@@ -269,4 +269,11 @@ public class UserController {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<java.util.Map<String, String>> handleRuntimeException(RuntimeException ex) {
+        java.util.Map<String, String> error = new java.util.HashMap<>();
+        error.put("message", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
+    }
 }

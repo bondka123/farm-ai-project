@@ -46,9 +46,19 @@ export class EmployeeService {
     return this.http.post(`${this.API}/employee`, emp);
   }
 
+  // ✅ UPDATE
+  update(id: number, emp: Employee) {
+    return this.http.put(`${this.API}/${id}`, emp);
+  }
+
   // ✅ DELETE
   delete(id: number) {
     return this.http.delete(`${this.API}/${id}`);
+  }
+
+  // ✅ APPROVE
+  approve(id: number) {
+    return this.http.post(`${this.API}/approve/${id}`, {});
   }
 
   registerFace(id: number) {

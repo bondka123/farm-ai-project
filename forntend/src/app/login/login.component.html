@@ -1,44 +1,133 @@
-<div class="login-wrapper">
-  <div class="login-card">
-    <div class="header">
-      <div class="logo">
-        <i class="material-icons" style="font-size: 60px; color: #4db8ff;">security</i>
+<div class="ultra-premium-login">
+  <!-- 🌌 BACKGROUND ENGINE -->
+  <div class="bg-engine">
+    <div class="cyber-grid"></div>
+    <div class="neural-lines"></div>
+    <div class="particles"></div>
+    <div class="glow-atmosphere"></div>
+    <div class="radar-circle"></div>
+  </div>
+
+  <div class="login-container">
+
+    <!-- 🚀 LEFT SIDE: AI COMMAND CENTER VISUAL -->
+    <div class="visual-section">
+      <div class="hud-overlay">
+        <div class="corner top-left"></div>
+        <div class="corner top-right"></div>
+        <div class="corner bottom-left"></div>
+        <div class="corner bottom-right"></div>
       </div>
-      <h1>CYBER SECURITY</h1>
-      <p>Secure Access Control</p>
-    </div>
 
-    <form #loginForm="ngForm" (ngSubmit)="login()">
-      <div class="input-group">
-        <label>EMAIL ADDRESS</label>
-        <input type="text" class="cyber-input" name="username" [(ngModel)]="email" placeholder="admin@secure.com" required>
+      <div class="branding-group">
+        <div class="logo-hologram">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h1 class="main-title">FARM <span class="accent">AI</span></h1>
+        <h2 class="sub-title">AI SECURITY SYSTEM</h2>
+        <p class="slogan">Next Generation Intelligent Surveillance Platform</p>
       </div>
 
-      <div class="input-group">
-        <label>ACCESS KEY</label>
-        <input type="password" class="cyber-input" name="password" [(ngModel)]="password" placeholder="********" required>
+      <div class="ai-visual-center">
+        <div class="scanner-circle"></div>
+        <div class="data-stream left"></div>
+        <div class="data-stream right"></div>
+        <div class="core-node">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring"></div>
+          <i class="fas fa-microchip"></i>
+        </div>
       </div>
 
-      <button type="submit" class="cyber-btn primary" [disabled]="loading">
-        <span *ngIf="!loading">SYSTEM LOGIN</span>
-        <div class="spinner" *ngIf="loading"></div>
-      </button>
-    </form>
-
-    <div class="divider">
-      <span>OU BIOMÉTRIQUE</span>
+      <div class="status-indicators">
+        <div class="indicator">
+          <span class="dot live"></span>
+          <span class="label">LIVE MONITORING</span>
+        </div>
+        <div class="indicator">
+          <span class="dot active"></span>
+          <span class="label">AI ACTIVE</span>
+        </div>
+        <div class="indicator">
+          <span class="dot secure"></span>
+          <span class="label">SECURED NETWORK</span>
+        </div>
+        <div class="indicator">
+          <span class="dot analytics"></span>
+          <span class="label">REALTIME ANALYTICS</span>
+        </div>
+      </div>
     </div>
 
-    <button class="cyber-btn secondary" (click)="faceLogin()" [disabled]="faceLoading">
-      <span *ngIf="!faceLoading">IDENTIFY WITH FACE</span>
-      <div class="spinner" *ngIf="faceLoading"></div>
-    </button>
+    <!-- 🔐 RIGHT SIDE: LOGIN PANEL -->
+    <div class="form-section">
+      <div class="login-card">
+        <div class="card-header">
+          <div class="badge-live">
+            <span class="pulse"></span> LIVE
+          </div>
+          <h3>WELCOME BACK</h3>
+          <p>Secure Enterprise Access Portal</p>
+        </div>
 
-    <div *ngIf="error" class="error-msg">
-      {{ error }}
+        <form (ngSubmit)="login()" #loginForm="ngForm" class="login-form">
+
+          <div *ngIf="error" class="error-msg">
+            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+          </div>
+
+          <!-- EMAIL -->
+          <div class="input-group">
+            <label><i class="fas fa-envelope"></i> Email</label>
+            <div class="input-wrapper">
+              <input type="email" name="email" [(ngModel)]="email" placeholder="enterprise@farm.ai" required>
+              <div class="input-glow"></div>
+            </div>
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="input-group">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <div class="input-wrapper">
+              <input type="password" name="password" [(ngModel)]="password" placeholder="••••••••" required>
+              <div class="input-glow"></div>
+            </div>
+          </div>
+
+          <!-- SIGN IN BUTTON -->
+          <button type="submit" class="btn-signin" [disabled]="loading">
+            <span *ngIf="!loading">SIGN IN <i class="fas fa-arrow-right"></i></span>
+            <span *ngIf="loading" class="spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+          </button>
+
+          <!-- FACE LOGIN SECTION -->
+          <div class="face-login-divider">
+            <span>OR BIOMETRIC</span>
+          </div>
+
+          <div class="face-login-container">
+            <div class="biometric-visual">
+              <div class="scan-line"></div>
+              <div class="face-frame">
+                <i class="fas fa-user-shield"></i>
+              </div>
+              <div class="radar-pulse"></div>
+            </div>
+
+            <button type="button" class="btn-face" (click)="faceLogin()">
+              <i class="fas fa-camera"></i>
+              IDENTIFY WITH FACE
+              <div class="shimmer"></div>
+            </button>
+          </div>
+
+        </form>
+
+        <div class="card-footer">
+          <p>&copy; 2026 FARM AI TECHNOLOGIES. ALL RIGHTS RESERVED.</p>
+        </div>
+      </div>
     </div>
-    <div *ngIf="success" class="success-msg">
-      {{ success }}
-    </div>
+
   </div>
 </div>

@@ -32,10 +32,10 @@ public class Employee {
     @Column(columnDefinition = "TEXT")
     private String embedding;
 
-    private boolean faceRegistered = false;
+    private Boolean faceRegistered = false;
 
     // 🔥 AJOUT IMPORTANT
-    private boolean available = true;
+    private Boolean available = true;
 
     private LocalDateTime createdAt;
 
@@ -47,8 +47,8 @@ public class Employee {
     public String getPhone() { return phone; }
     public Department getDepartment() { return department; }
     public EmployeeStatus getStatus() { return status; }
-    public boolean isFaceRegistered() { return faceRegistered; }
-    public boolean isAvailable() { return available; }
+    public Boolean isFaceRegistered() { return faceRegistered; }
+    public Boolean isAvailable() { return available; }
     public String getEmbedding() { return embedding; }
 
     // ===== SETTERS =====
@@ -59,8 +59,8 @@ public class Employee {
     public void setPhone(String phone) { this.phone = phone; }
     public void setDepartment(Department department) { this.department = department; }
     public void setStatus(EmployeeStatus status) { this.status = status; }
-    public void setFaceRegistered(boolean faceRegistered) { this.faceRegistered = faceRegistered; }
-    public void setAvailable(boolean available) { this.available = available; }
+    public void setFaceRegistered(Boolean faceRegistered) { this.faceRegistered = faceRegistered; }
+    public void setAvailable(Boolean available) { this.available = available; }
     public void setEmbedding(String embedding) { this.embedding = embedding; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -16,7 +16,8 @@ export class AuthGuard implements CanActivate {
     }
 
     const faceRegistered = localStorage.getItem('faceRegistered');
-    const role = localStorage.getItem('role');
+    const rawRole = localStorage.getItem('role') || '';
+    const role = this.normalizeRole(rawRole);
 
     // Force face setup for Manager/Viewer
     if ((role === 'ROLE_MANAGER' || role === 'ROLE_VIEWER') && faceRegistered !== 'true') {
@@ -24,7 +25,11 @@ export class AuthGuard implements CanActivate {
     }
 
     // Protect routes based on role metadata
-    if (route.data['role'] && role !== route.data['role']) {
+    const requiredRole = this.normalizeRole(route.data['role']);
+
+    if (requiredRole && role !== requiredRole) {
+      console.warn(`Access Denied. Required: ${requiredRole}, Found: ${role}`);
+      
       if (role === 'ROLE_MANAGER') {
         return this.router.createUrlTree(['/dashboard/manager']);
       }
@@ -34,8 +39,18 @@ export class AuthGuard implements CanActivate {
       if (role === 'ROLE_ADMIN') {
         return this.router.createUrlTree(['/dashboard']);
       }
+      return this.router.createUrlTree(['/login']);
     }
 
     return true;
+  }
+
+  private normalizeRole(role: string): string {
+    if (!role) return '';
+    const r = role.toUpperCase();
+    if (r.includes('ADMIN')) return 'ROLE_ADMIN';
+    if (r.includes('MANAGER')) return 'ROLE_MANAGER';
+    if (r.includes('VIEWER') || r.includes('OBSERVER')) return 'ROLE_VIEWER';
+    return r;
   }
 }

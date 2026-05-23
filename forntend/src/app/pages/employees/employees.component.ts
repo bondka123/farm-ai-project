@@ -19,6 +19,69 @@ export class EmployeesComponent implements OnInit {
   // ── Form ──────────────────────────────────────────────────────────────────
   form: any = { name: '', email: '', phone: '', job: '', department: null };
   submitted = false;
+  showModal = false;
+  isEditMode = false;
+  editId: number | null = null;
+
+  openModal() {
+    this.form = { name: '', email: '', phone: '', job: '', department: null };
+    this.submitted = false;
+    this.isEditMode = false;
+    this.editId = null;
+    this.showModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeModal() {
+    this.showModal = false;
+    document.body.classList.remove('modal-open');
+  }
+
+  edit(emp: Employee) {
+    this.isEditMode = true;
+    this.editId = emp.id || null;
+    this.form = {
+      name: emp.name,
+      email: emp.email || '',
+      phone: emp.phone || '',
+      job: emp.job,
+      department: null
+    };
+    this.submitted = false;
+    this.showModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  // ── Approval Modal ────────────────────────────────────────────────────────
+  showConfirmModal = false;
+  employeeToApprove: Employee | null = null;
+
+  promptApprove(emp: Employee) {
+    this.employeeToApprove = emp;
+    this.showConfirmModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  cancelApprove() {
+    this.showConfirmModal = false;
+    this.employeeToApprove = null;
+    if (!this.showModal) {
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  approveEmployee() {
+    if (!this.employeeToApprove || !this.employeeToApprove.id) return;
+
+    this.service.approve(this.employeeToApprove.id).subscribe({
+      next: () => {
+        this.toast('Employé approuvé avec succès ✅', 'success');
+        this.load();
+        this.cancelApprove();
+      },
+      error: () => this.toast("Erreur lors de l'approbation.", 'error')
+    });
+  }
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   showToast = false;
@@ -76,15 +139,25 @@ export class EmployeesComponent implements OnInit {
       faceRegistered: false
     };
 
-    this.service.create(payload).subscribe({
-      next: () => {
-        this.toast('Employé ajouté avec succès ✅', 'success');
-        this.load();
-        this.form = { name: '', email: '', phone: '', job: '', department: null };
-        this.submitted = false;
-      },
-      error: () => this.toast("Erreur lors de l'ajout.", 'error')
-    });
+    if (this.isEditMode && this.editId) {
+      this.service.update(this.editId, payload).subscribe({
+        next: () => {
+          this.toast('Employé modifié avec succès ✅', 'success');
+          this.load();
+          this.closeModal();
+        },
+        error: () => this.toast("Erreur lors de la modification.", 'error')
+      });
+    } else {
+      this.service.create(payload).subscribe({
+        next: () => {
+          this.toast('Employé ajouté avec succès ✅', 'success');
+          this.load();
+          this.closeModal();
+        },
+        error: () => this.toast("Erreur lors de l'ajout.", 'error')
+      });
+    }
   }
 
   // ── Delete employee ───────────────────────────────────────────────────────
@@ -137,6 +210,7 @@ export class EmployeesComponent implements OnInit {
     this.toastTimer = setTimeout(() => this.showToast = false, 3000);
   }
 }
+
 
 
 

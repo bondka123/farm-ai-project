@@ -15,17 +15,17 @@ public class DepartmentRequirement {
     private Department department;
 
     private String job;
-    private int requiredCount;
+    private Integer requiredCount = 0;
 
     // ===== GETTERS =====
     public Long getId() { return id; }
     public Department getDepartment() { return department; }
     public String getJob() { return job; }
-    public int getRequiredCount() { return requiredCount; }
+    public Integer getRequiredCount() { return requiredCount; }
 
     // ===== SETTERS =====
     public void setId(Long id) { this.id = id; }
     public void setDepartment(Department department) { this.department = department; }
     public void setJob(String job) { this.job = job; }
-    public void setRequiredCount(int requiredCount) { this.requiredCount = requiredCount; }
+    public void setRequiredCount(Integer requiredCount) { this.requiredCount = requiredCount; }
 }

@@ -27,3 +27,22 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Uploads (fichiers générés par l'application)
+backend/uploads/
+uploads/
+
+# Environnements virtuels Python
+venv/
+env/
+.env
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Angular build
+dist/
+.angular/

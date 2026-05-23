@@ -23,9 +23,9 @@ public class Department {
     @JoinColumn(name = "manager_id")
     private User manager;
 
-    private int doctors;
-    private int electricians;
-    private int workers;
+    private Integer doctors = 0;
+    private Integer electricians = 0;
+    private Integer workers = 0;
 
     @Transient
     private long assignedEmployees;
@@ -54,12 +54,12 @@ public class Department {
     public long getAssignedEmployees() { return assignedEmployees; }
     public void setAssignedEmployees(long assignedEmployees) { this.assignedEmployees = assignedEmployees; }
 
-    public int getDoctors() { return doctors; }
-    public void setDoctors(int doctors) { this.doctors = doctors; }
-    public int getElectricians() { return electricians; }
-    public void setElectricians(int electricians) { this.electricians = electricians; }
-    public int getWorkers() { return workers; }
-    public void setWorkers(int workers) { this.workers = workers; }
+    public Integer getDoctors() { return doctors; }
+    public void setDoctors(Integer doctors) { this.doctors = doctors; }
+    public Integer getElectricians() { return electricians; }
+    public void setElectricians(Integer electricians) { this.electricians = electricians; }
+    public Integer getWorkers() { return workers; }
+    public void setWorkers(Integer workers) { this.workers = workers; }
 
 
     // ===== SETTERS =====

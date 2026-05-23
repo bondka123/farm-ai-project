@@ -14,6 +14,17 @@ export class UserProfileComponent implements OnInit {
   message = '';
   isError = false;
   faceLoginEnabled = true;
+  showEditModal = false;
+
+  openEditModal() {
+    this.showEditModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
+    document.body.classList.remove('modal-open');
+  }
 
   // Edit Profile fields
   editName = '';
@@ -132,3 +143,4 @@ export class UserProfileComponent implements OnInit {
     }, 1500);
   }
 }
+

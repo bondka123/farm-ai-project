@@ -1,64 +1,9 @@
 <div class="main-content">
   <div class="container-fluid">
-    
+
     <div class="row">
       <div class="col-md-12">
         <h2 class="section-title"><i class="material-icons">visibility</i> GESTION DES OBSERVATEURS</h2>
-      </div>
-    </div>
-
-    <!-- 👁️ SECTION : FORMULAIRE -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">{{ editMode ? 'MODIFIER L\'OBSERVATEUR' : 'CRÉER UN NOUVEL OBSERVATEUR' }}</h4>
-            <p class="category">Comptes avec accès en lecture seule au tableau de bord</p>
-          </div>
-          <div class="card-body p-4">
-            <form (ngSubmit)="save()">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>PRÉNOM</label>
-                    <input type="text" class="form-control" [(ngModel)]="viewer.firstName" name="fn" placeholder="Ex: Marc" required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NOM DE FAMILLE</label>
-                    <input type="text" class="form-control" [(ngModel)]="viewer.lastName" name="ln" placeholder="Ex: Lefebvre" required>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" [(ngModel)]="viewer.email" name="em" placeholder="marc.l@secure.com" required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NUMÉRO DE TÉLÉPHONE</label>
-                    <input type="text" class="form-control" [(ngModel)]="viewer.phone" name="ph" placeholder="+33 7 00 00 00 00">
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-4">
-                <div class="col-md-12 text-right">
-                  <button type="button" class="btn btn-secondary mr-2" (click)="reset()" *ngIf="editMode">ANNULER</button>
-                  <button type="submit" class="btn btn-primary px-5">
-                    <i class="material-icons">{{ editMode ? 'save' : 'person_add' }}</i>
-                    {{ editMode ? 'METTRE À JOUR' : 'ENREGISTRER' }}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -67,8 +12,13 @@
       <div class="col-md-12">
         <div class="card glass-card fade-in">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">OBSERVATEURS ENREGISTRÉS</h4>
-            <span class="badge badge-primary">{{ viewers.length }} ACTIFS</span>
+            <div>
+              <h4 class="card-title">OBSERVATEURS ENREGISTRÉS</h4>
+              <p class="category">Comptes avec accès en lecture seule au tableau de bord</p>
+            </div>
+            <button class="btn btn-primary btn-round" (click)="openModal()">
+              <i class="material-icons">person_add</i> NOUVEL OBSERVATEUR
+            </button>
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -84,11 +34,12 @@
                   <tr *ngFor="let v of viewers" class="row-hover">
                     <td class="pl-4">
                       <div class="d-flex align-items-center">
-                        <div class="avatar-circle mr-3 avatar-blue">
+                        <div class="avatar-circle mr-3">
                           {{ v.firstName?.charAt(0) }}{{ v.lastName?.charAt(0) }}
                         </div>
                         <div>
-                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ v.firstName }} {{ v.lastName }}</div>
+                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ v.firstName }} {{
+                            v.lastName }}</div>
                           <span class="badge badge-info x-small">OBSERVATEUR</span>
                         </div>
                       </div>
@@ -117,33 +68,162 @@
   </div>
 </div>
 
+<!-- 🌌 PREMIUM CENTERED MODAL -->
+<div class="form-overlay" *ngIf="showModal">
+  <div class="form-modal">
+
+    <div class="modal-header">
+      <div>
+        <h2>{{ editMode ? 'VIEWER CONFIGURATION' : 'NEW OBSERVER UNIT' }}</h2>
+        <p>Attribution des accès en lecture seule pour la surveillance passive</p>
+      </div>
+      <button class="btn-close-modal" (click)="closeModal()">×</button>
+    </div>
+
+    <form (ngSubmit)="save()" #viewerForm="ngForm">
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="form-group">
+            <label>FIRST NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="viewer.firstName" name="firstName"
+              placeholder="Ex: Marc" required>
+          </div>
+          <div class="form-group">
+            <label>LAST NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="viewer.lastName" name="lastName"
+              placeholder="Ex: Lefebvre" required>
+          </div>
+          <div class="form-group">
+            <label>SECURE EMAIL ADDRESS</label>
+            <input type="email" class="form-control" [(ngModel)]="viewer.email" name="email"
+              placeholder="marc.l@secure.com" required>
+          </div>
+          <div class="form-group">
+            <label>PHONE LINE</label>
+            <input type="text" class="form-control" [(ngModel)]="viewer.phone" name="phone"
+              placeholder="+33 7 00 00 00 00">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel-modal" (click)="closeModal()">CANCEL</button>
+        <button type="submit" class="btn-save-modal">
+          <i class="material-icons">person_add</i>
+          {{ editMode ? 'SYNC ACCESS DATA' : 'ACTIVATE VIEWER' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
 <style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
+  /* 🌌 ULTRA-PREMIUM MODAL FIX */
+  ::ng-deep .form-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(2, 4, 10, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 24px !important;
+    margin: 0 !important;
+  }
 
-.avatar-circle {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  background: linear-gradient(45deg, #00bcd4, #2196f3);
-}
+  ::ng-deep .form-modal {
+    width: 900px !important;
+    max-width: 92vw !important;
+    max-height: 88vh !important;
+    background: #111827 !important;
+    border: 1px solid rgba(0, 255, 255, 0.15) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    animation: modalAppear 0.3s ease-out !important;
+  }
 
-.avatar-blue { background: linear-gradient(45deg, #00bcd4, #2196f3); }
+  ::ng-deep .form-modal form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
 
-.x-small { font-size: 12px !important; vertical-align: middle; }
+  ::ng-deep .modal-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 25px 35px !important;
+  }
 
-.row-hover:hover {
-  background: rgba(33, 150, 243, 0.05) !important;
-}
+  @keyframes modalAppear {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.94);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  ::ng-deep body.modal-open {
+    overflow: hidden !important;
+  }
+
+  .section-title {
+    color: #00ffff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 2px;
+  }
+
+  .section-title i {
+    margin-right: 15px;
+    font-size: 32px;
+    color: #00ffff;
+  }
+
+  .avatar-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: 800;
+    background: linear-gradient(45deg, #00ffff, #7B61FF);
+  }
+
+  .x-small {
+    font-size: 10px !important;
+    vertical-align: middle;
+    letter-spacing: 1px;
+  }
+
+  .row-hover:hover {
+    background: rgba(0, 255, 255, 0.03) !important;
+  }
+
+  .btn-round {
+    border-radius: 30px !important;
+  }
 </style>

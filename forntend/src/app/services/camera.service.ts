@@ -10,6 +10,11 @@ export interface Camera {
   status: string;
   location: string;
   lastImage?: string;
+  linePosition?: number;
+  fps?: number;
+  protocol?: string;
+  aiEnabled?: boolean;
+  aiType?: string;
   department?: {
     id: number;
     name?: string;

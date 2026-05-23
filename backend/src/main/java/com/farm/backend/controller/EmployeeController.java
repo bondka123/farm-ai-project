@@ -60,6 +60,25 @@ public class EmployeeController {
     }
 
     // =====================================================
+    // 🔥 UPDATE EMPLOYEE (BASIC INFO)
+    // =====================================================
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PutMapping("/{id}")
+    public Employee updateEmployee(@PathVariable Long id, @RequestBody Employee updatedInfo) {
+        Employee emp = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        emp.setName(updatedInfo.getName());
+        emp.setEmail(updatedInfo.getEmail());
+        emp.setPhone(updatedInfo.getPhone());
+        if (updatedInfo.getJob() != null) {
+            emp.setJob(normalizeEmployeeJob(updatedInfo.getJob().name()));
+        }
+
+        return employeeRepository.save(emp);
+    }
+
+    // =====================================================
     // 🔥 VALIDATION FACE (PAR VIEWER)
     // =====================================================
     @PutMapping("/validate-face/{id}")

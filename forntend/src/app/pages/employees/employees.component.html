@@ -1,70 +1,9 @@
 <div class="main-content">
   <div class="container-fluid">
-    
+
     <div class="row">
       <div class="col-md-12">
         <h2 class="section-title"><i class="material-icons">people</i> GESTION DES EMPLOYÉS</h2>
-      </div>
-    </div>
-
-    <!-- 👤 SECTION : AJOUTER UN EMPLOYÉ -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">AJOUTER UN NOUVEL EMPLOYÉ</h4>
-            <p class="category">Saisissez les informations professionnelles</p>
-          </div>
-          <div class="card-body p-4">
-            <form (ngSubmit)="save()">
-              <!-- GRID 2 COLONNES -->
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NOM COMPLET</label>
-                    <input type="text" class="form-control" [(ngModel)]="form.name" name="name" placeholder="Ex: Jean Dupont" required>
-                    <small class="text-danger" *ngIf="submitted && !nameValid">Le nom est obligatoire.</small>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" [(ngModel)]="form.email" name="email" placeholder="jean.dupont@entreprise.com">
-                    <small class="text-danger" *ngIf="submitted && !emailValid">Format d'email invalide.</small>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NUMÉRO DE TÉLÉPHONE</label>
-                    <input type="text" class="form-control" [(ngModel)]="form.phone" name="phone" placeholder="+33 6 00 00 00 00">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>POSTE / FONCTION</label>
-                    <select class="form-control" [(ngModel)]="form.job" name="job" required>
-                      <option value="" disabled>Selectionnez un metier...</option>
-                      <option *ngFor="let job of jobs" [value]="job.value">{{ job.label }}</option>
-                    </select>
-                    <small class="text-danger" *ngIf="submitted && !form.job">Le metier est obligatoire pour la proposition d'equipe.</small>
-                    <input type="hidden" [(ngModel)]="form.job" name="jobHidden">
-                  </div>
-                </div>
-              </div>
-              
-              <div class="row mt-4">
-                <div class="col-md-12 text-right">
-                  <button type="submit" class="btn btn-primary px-5">
-                    <i class="material-icons">add_circle</i> AJOUTER L'EMPLOYÉ
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -73,8 +12,13 @@
       <div class="col-md-12">
         <div class="card glass-card fade-in">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">LISTE DU PERSONNEL</h4>
-            <span class="badge badge-primary">{{ employees.length }} TOTAL</span>
+            <div>
+              <h4 class="card-title">LISTE DU PERSONNEL</h4>
+              <p class="category">Registre centralisé des effectifs opérationnels</p>
+            </div>
+            <button class="btn btn-primary btn-round" (click)="openModal()">
+              <i class="material-icons">person_add</i> ENRÔLER UN EMPLOYÉ
+            </button>
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -92,7 +36,7 @@
                   <tr *ngFor="let emp of employees; let i = index" class="row-hover">
                     <td class="pl-4">
                       <div class="d-flex align-items-center">
-                        <div class="avatar-circle mr-3 avatar-purple">
+                        <div class="avatar-circle mr-3">
                           {{ emp.name?.charAt(0) }}
                         </div>
                         <div>
@@ -107,13 +51,22 @@
                     </td>
                     <td class="text-white">{{ emp.job }}</td>
                     <td>
-                      <span class="badge" [class.badge-success]="emp.status === 'APPROVED'" [class.badge-warning]="emp.status !== 'APPROVED'">
+                      <span class="badge" [class.badge-success]="emp.status === 'APPROVED'"
+                        [class.badge-warning]="emp.status !== 'APPROVED'">
                         {{ emp.status === 'APPROVED' ? 'VÉRIFIÉ' : 'EN ATTENTE' }}
                       </span>
                     </td>
                     <td class="text-right pr-4">
-                      <button class="btn btn-link btn-success btn-sm" (click)="validateFace(emp.id)" *ngIf="emp.status !== 'APPROVED'">
-                        <i class="material-icons">verified</i>
+                      <button class="btn btn-link btn-success btn-sm" (click)="promptApprove(emp)"
+                        *ngIf="emp.status !== 'APPROVED'" title="Approuver">
+                        <i class="material-icons">check_circle</i>
+                      </button>
+                      <button class="btn btn-link btn-warning btn-sm" (click)="validateFace(emp.id)"
+                        *ngIf="!emp.faceRegistered" title="Valider Visage">
+                        <i class="material-icons">face</i>
+                      </button>
+                      <button class="btn btn-link btn-info btn-sm" (click)="edit(emp)">
+                        <i class="material-icons">edit</i>
                       </button>
                       <button class="btn btn-link btn-danger btn-sm" (click)="delete(emp.id)">
                         <i class="material-icons">delete</i>
@@ -123,7 +76,7 @@
                 </tbody>
               </table>
             </div>
-            
+
             <div *ngIf="employees.length === 0" class="text-center p-5">
               <i class="material-icons text-muted" style="font-size: 48px;">person_off</i>
               <p class="text-muted mt-2">Aucun employé enregistré.</p>
@@ -136,30 +89,206 @@
   </div>
 </div>
 
+<!-- 🌌 PREMIUM CENTERED MODAL -->
+<div class="form-overlay" *ngIf="showModal">
+  <div class="form-modal">
+
+    <div class="modal-header">
+      <div>
+        <h2>{{ isEditMode ? 'EDIT EMPLOYEE' : 'EMPLOYEE ENROLLMENT' }}</h2>
+        <p>Saisie des données biométriques et professionnelles de l'employé</p>
+      </div>
+      <button class="btn-close-modal" (click)="closeModal()">×</button>
+    </div>
+
+    <form (ngSubmit)="save()" #employeeForm="ngForm">
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="form-group">
+            <label>FULL NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="form.name" name="name" placeholder="Jean Dupont"
+              required>
+            <small class="text-danger" *ngIf="submitted && !nameValid">Le nom est obligatoire.</small>
+          </div>
+          <div class="form-group">
+            <label>SECURE EMAIL ADDRESS</label>
+            <input type="email" class="form-control" [(ngModel)]="form.email" name="email"
+              placeholder="jean.dupont@entreprise.com">
+            <small class="text-danger" *ngIf="submitted && !emailValid">Format d'email invalide.</small>
+          </div>
+          <div class="form-group">
+            <label>DIRECT PHONE LINE</label>
+            <input type="text" class="form-control" [(ngModel)]="form.phone" name="phone"
+              placeholder="+33 6 00 00 00 00">
+          </div>
+          <div class="form-group">
+            <label>UNIT / JOB POSITION</label>
+            <select class="form-control" [(ngModel)]="form.job" name="job" required>
+              <option value="" disabled selected>Sélectionnez un profil...</option>
+              <option *ngFor="let job of jobs" [value]="job.value">{{ job.label }}</option>
+            </select>
+            <small class="text-danger" *ngIf="submitted && !form.job">Le métier est obligatoire.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel-modal" (click)="closeModal()">CANCEL</button>
+        <button type="submit" class="btn-save-modal">
+          <i class="material-icons">{{ isEditMode ? 'save' : 'person_add' }}</i>
+          {{ isEditMode ? 'SAVE CHANGES' : 'ACTIVATE EMPLOYEE FILE' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- 🛑 CONFIRMATION MODAL (APPROVE EMPLOYEE) -->
+<div class="form-overlay" *ngIf="showConfirmModal">
+  <div class="form-modal confirm-modal" style="width: 500px !important; min-height: auto !important;">
+    <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+      <div class="d-flex align-items-center">
+        <i class="material-icons text-warning mr-3" style="font-size: 32px;">warning</i>
+        <h2 style="margin: 0; color: #ffeb3b; font-size: 20px;">CONFIRMATION</h2>
+      </div>
+      <button class="btn-close-modal" (click)="cancelApprove()">×</button>
+    </div>
+
+    <div class="modal-body text-center" style="padding: 40px 30px;">
+      <h4 class="text-white" style="font-size: 18px; margin-bottom: 15px;">
+        Êtes-vous sûr de vouloir approuver cet employé ?
+      </h4>
+      <p class="text-muted">
+        L'employé passera au statut <strong class="text-success">ACTIVE</strong> et recevra un e-mail d'activation.
+      </p>
+    </div>
+
+    <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+      <button type="button" class="btn btn-secondary mr-3" (click)="cancelApprove()" 
+              style="border-radius: 30px; padding: 10px 30px; font-weight: 600;">
+        Annuler
+      </button>
+      <button type="button" class="btn btn-success" (click)="approveEmployee()" 
+              style="border-radius: 30px; padding: 10px 30px; font-weight: 600; background: linear-gradient(45deg, #00b09b, #96c93d); border: none;">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>
+
 <style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
+  /* 🌌 ULTRA-PREMIUM MODAL FIX */
+  ::ng-deep .form-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(2, 4, 10, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 24px !important;
+    margin: 0 !important;
+  }
 
-.avatar-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  background: linear-gradient(45deg, #9c27b0, #ba2dd4);
-}
+  ::ng-deep .form-modal {
+    width: 900px !important;
+    max-width: 92vw !important;
+    max-height: 88vh !important;
+    background: #111827 !important;
+    border: 1px solid rgba(0, 255, 255, 0.15) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    animation: modalAppear 0.3s ease-out !important;
+  }
 
-.row-hover:hover {
-  background: rgba(156, 39, 176, 0.05) !important;
-}
+  ::ng-deep .form-modal form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  ::ng-deep .modal-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 25px 35px !important;
+  }
+
+  @keyframes modalAppear {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.94);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  ::ng-deep body.modal-open {
+    overflow: hidden !important;
+  }
+
+  .section-title {
+    color: #00ffff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 2px;
+  }
+
+  .section-title i {
+    margin-right: 15px;
+    font-size: 32px;
+    color: #00ffff;
+  }
+
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: 800;
+    background: linear-gradient(45deg, #00ffff, #7B61FF);
+  }
+
+  .row-hover:hover {
+    background: rgba(0, 255, 255, 0.03) !important;
+  }
+
+  .btn-round {
+    border-radius: 30px !important;
+  }
+
+  .badge-success {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+  }
+
+  .badge-warning {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 </style>
-

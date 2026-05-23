@@ -5,7 +5,7 @@ import { AnalyticsService } from '../services/analytics.service';
 @Component({
   selector: 'app-analytics',
   templateUrl: './analytics.component.html',
-  styleUrls: ['./analytics.component.css']
+  styleUrls: ['./analytics.component.scss']
 })
 export class AnalyticsComponent implements OnInit, AfterViewInit {
 

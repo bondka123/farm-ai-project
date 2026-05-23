@@ -1,64 +1,9 @@
 <div class="main-content">
   <div class="container-fluid">
-    
+
     <div class="row">
       <div class="col-md-12">
         <h2 class="section-title"><i class="material-icons">admin_panel_settings</i> GESTION DES GESTIONNAIRES</h2>
-      </div>
-    </div>
-
-    <!-- 🤵 SECTION : FORMULAIRE -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">{{ isEdit ? 'MODIFIER LE COMPTE' : 'CRÉER UN NOUVEAU GESTIONNAIRE' }}</h4>
-            <p class="category">Gestion des accès et privilèges administratifs</p>
-          </div>
-          <div class="card-body p-4">
-            <form (ngSubmit)="save()">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>PRÉNOM</label>
-                    <input type="text" class="form-control" [(ngModel)]="manager.firstName" name="fn" placeholder="Ex: Jean" required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NOM DE FAMILLE</label>
-                    <input type="text" class="form-control" [(ngModel)]="manager.lastName" name="ln" placeholder="Ex: Dupont" required>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" [(ngModel)]="manager.email" name="em" placeholder="jean.dupont@secure.com" required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>NUMÉRO DE TÉLÉPHONE</label>
-                    <input type="text" class="form-control" [(ngModel)]="manager.phone" name="ph" placeholder="+33 6 00 00 00 00">
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-4">
-                <div class="col-md-12 text-right">
-                  <button type="button" class="btn btn-secondary mr-2" (click)="afterSave()" *ngIf="isEdit">ANNULER</button>
-                  <button type="submit" class="btn btn-primary px-5" [disabled]="loading">
-                    <i class="material-icons">{{ isEdit ? 'save' : 'person_add' }}</i>
-                    {{ isEdit ? 'METTRE À JOUR' : 'ENREGISTRER' }}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -67,8 +12,13 @@
       <div class="col-md-12">
         <div class="card glass-card fade-in">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">GESTIONNAIRES ACTIFS</h4>
-            <span class="badge badge-primary">{{ managers.length }} ACTIFS</span>
+            <div>
+              <h4 class="card-title">GESTIONNAIRES ACTIFS</h4>
+              <p class="category">Gestion des accès et privilèges administratifs</p>
+            </div>
+            <button class="btn btn-primary btn-round" (click)="openModal()">
+              <i class="material-icons">person_add</i> NOUVEAU GESTIONNAIRE
+            </button>
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -88,7 +38,8 @@
                           {{ m.firstName?.charAt(0) }}{{ m.lastName?.charAt(0) }}
                         </div>
                         <div>
-                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ m.firstName }} {{ m.lastName }}</div>
+                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ m.firstName }} {{
+                            m.lastName }}</div>
                           <span class="badge badge-info x-small">MANAGER</span>
                         </div>
                       </div>
@@ -101,7 +52,7 @@
                           {{ m.enabled ? 'ACTIF' : 'EN ATTENTE D\'ACTIVATION' }}
                         </span>
                         <span class="badge ml-1" [ngClass]="m.faceRegistered ? 'badge-info' : 'badge-danger'">
-                          <i class="material-icons x-small">face</i> 
+                          <i class="material-icons x-small">face</i>
                           {{ m.faceRegistered ? 'VISAGE OK' : 'VISAGE MANQUANT' }}
                         </span>
                       </div>
@@ -126,31 +77,162 @@
   </div>
 </div>
 
+<!-- 🌌 PREMIUM CENTERED MODAL -->
+<div class="form-overlay" *ngIf="showModal">
+  <div class="form-modal">
+
+    <div class="modal-header">
+      <div>
+        <h2>{{ isEdit ? 'UPDATE MANAGER UNIT' : 'NEW MANAGER UNIT' }}</h2>
+        <p>{{ isEdit ? 'Modification des accès administrateur' : 'Configuration des privilèges de commandement' }}</p>
+      </div>
+      <button class="btn-close-modal" (click)="closeModal()">×</button>
+    </div>
+
+    <form (ngSubmit)="save()" #managerForm="ngForm">
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="form-group">
+            <label>FIRST NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="manager.firstName" name="firstName" placeholder="Jean"
+              required>
+          </div>
+          <div class="form-group">
+            <label>LAST NAME</label>
+            <input type="text" class="form-control" [(ngModel)]="manager.lastName" name="lastName" placeholder="Dupont"
+              required>
+          </div>
+          <div class="form-group">
+            <label>SECURE EMAIL ADDRESS</label>
+            <input type="email" class="form-control" [(ngModel)]="manager.email" name="email"
+              placeholder="jean.dupont@secure.com" required>
+          </div>
+          <div class="form-group">
+            <label>PHONE LINE</label>
+            <input type="text" class="form-control" [(ngModel)]="manager.phone" name="phone"
+              placeholder="+33 6 00 00 00 00">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel-modal" (click)="closeModal()">CANCEL</button>
+        <button type="submit" class="btn-save-modal" [disabled]="loading">
+          <i class="material-icons">person_add</i>
+          {{ isEdit ? 'CONFIRM CHANGES' : 'ACTIVATE ACCOUNT' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
 <style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
+  /* 🌌 ULTRA-PREMIUM MODAL FIX */
+  ::ng-deep .form-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(2, 4, 10, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 24px !important;
+    margin: 0 !important;
+  }
 
-.avatar-circle {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  background: linear-gradient(45deg, #9c27b0, #ba2dd4);
-}
+  ::ng-deep .form-modal {
+    width: 900px !important;
+    max-width: 92vw !important;
+    max-height: 88vh !important;
+    background: #111827 !important;
+    border: 1px solid rgba(0, 255, 255, 0.15) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    animation: modalAppear 0.3s ease-out !important;
+  }
 
-.x-small { font-size: 12px !important; vertical-align: middle; }
+  ::ng-deep .form-modal form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
 
-.row-hover:hover {
-  background: rgba(156, 39, 176, 0.05) !important;
-}
+  ::ng-deep .modal-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 25px 35px !important;
+  }
+
+  @keyframes modalAppear {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.94);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  ::ng-deep body.modal-open {
+    overflow: hidden !important;
+  }
+
+  .section-title {
+    color: #00ffff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 2px;
+  }
+
+  .section-title i {
+    margin-right: 15px;
+    font-size: 32px;
+    color: #00ffff;
+  }
+
+  .avatar-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: 800;
+    background: linear-gradient(45deg, #00ffff, #7B61FF);
+  }
+
+  .x-small {
+    font-size: 10px !important;
+    vertical-align: middle;
+    letter-spacing: 1px;
+  }
+
+  .row-hover:hover {
+    background: rgba(0, 255, 255, 0.03) !important;
+  }
+
+  .btn-round {
+    border-radius: 30px !important;
+  }
 </style>

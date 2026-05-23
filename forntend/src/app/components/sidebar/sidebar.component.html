@@ -1,74 +1,80 @@
 <div class="logo">
-  <a class="simple-text logo-normal text-white">
-    <div class="logo-container">
-      <i class="material-icons cyber-glow-text">security</i>
-      <span>FARM<span class="purple-text">AI</span></span>
+  <div class="logo-container">
+    <div class="cyber-icon">
+      <i class="material-icons">security</i>
     </div>
-  </a>
+    <div class="logo-text">
+      <span class="brand">FARM <span class="neon-purple">AI</span></span>
+      <span class="tagline">SECURITY OPERATIONS CENTER</span>
+    </div>
+  </div>
 </div>
 
 <div class="sidebar-wrapper">
+  <div class="sidebar-soc-status">
+    <div class="pulse-ring"></div>
+    <span class="status-label">SYSTEM ACTIVE</span>
+  </div>
   <ul class="nav">
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/analytics">
-        <i class="material-icons">analytics</i>
+        <div class="icon-box"><i class="material-icons">analytics</i></div>
         <p>Analyses AI</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/departments">
-        <i class="material-icons">apartment</i>
+        <div class="icon-box"><i class="material-icons">apartment</i></div>
         <p>Départements</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/managers">
-        <i class="material-icons">supervisor_account</i>
+        <div class="icon-box"><i class="material-icons">supervisor_account</i></div>
         <p>Gestionnaires</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/viewers">
-        <i class="material-icons">visibility</i>
+        <div class="icon-box"><i class="material-icons">visibility</i></div>
         <p>Observateurs</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/employees">
-        <i class="material-icons">people</i>
+        <div class="icon-box"><i class="material-icons">people</i></div>
         <p>Employés</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/cameras">
-        <i class="material-icons">videocam</i>
+        <div class="icon-box"><i class="material-icons">videocam</i></div>
         <p>Caméras</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/alerts">
-        <i class="material-icons">notifications_active</i>
+        <div class="icon-box"><i class="material-icons">notifications_active</i></div>
         <p>Centre d'Alertes</p>
-        <span class="sidebar-badge" *ngIf="false">5</span> <!-- Mock badge -->
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/settings">
-        <i class="material-icons">settings</i>
+        <div class="icon-box"><i class="material-icons">settings</i></div>
         <p>Paramètres</p>
       </a>
     </li>
 
-    <li class="nav-item mt-auto" style="position: absolute; bottom: 20px; width: 100%;">
+    <li class="nav-item mt-auto" style="position: absolute; bottom: 20px; width: calc(100% - 30px);">
       <a class="nav-link logout-link" (click)="logout()">
-        <i class="material-icons">power_settings_new</i>
+        <div class="icon-box"><i class="material-icons">power_settings_new</i></div>
         <p>Déconnexion</p>
       </a>
     </li>

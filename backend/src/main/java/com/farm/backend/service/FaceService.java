@@ -175,5 +175,57 @@ public class FaceService {
             return null;
         }
     }
+
+    public Map<String, Object> identifyFaceFromImage(String base64Image) {
+        String output = runPythonScriptWithInput("identify_image.py", base64Image);
+        if (output == null || output.trim().isEmpty() || output.equals("NO_MATCH") || output.equals("INVALID_IMAGE") || output.equals("NO_FACE")) {
+            return Map.of("status", "error", "message", "Visage non reconnu");
+        }
+        return Map.of("status", "success", "email", output.trim());
+    }
+
+    public Map<String, Object> identifyFaceAsync(String base64Image) {
+        return identifyFaceFromImage(base64Image);
+    }
+
+    private String runPythonScriptWithInput(String scriptName, String inputData) {
+        try {
+            String rootPath = System.getProperty("user.dir");
+            File aiDir = new File(rootPath, "ai_system");
+            
+            if (!aiDir.exists()) {
+                aiDir = new File(new File(rootPath).getParentFile(), "ai_system");
+            }
+            
+            File scriptFile = new File(aiDir, scriptName);
+            if (!scriptFile.exists()) {
+                return null;
+            }
+
+            ProcessBuilder pb = new ProcessBuilder("python", "-u", scriptFile.getAbsolutePath());
+            pb.directory(aiDir);
+
+            Process process = pb.start();
+            
+            try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(process.getOutputStream()))) {
+                writer.write(inputData);
+                writer.flush();
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            String lastLine = null;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    lastLine = line;
+                }
+            }
+            
+            process.waitFor();
+            return lastLine;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
 

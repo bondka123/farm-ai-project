@@ -1,113 +1,690 @@
-.login-wrapper {
-  background-color: #0c0c14; /* Specific background from request */
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Inter', sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap');
 
-.login-card {
-  background: #1e1e2f; /* Card color from request */
-  border: 1px solid rgba(156, 39, 176, 0.3);
-  border-radius: 16px;
-  padding: 40px;
-  width: 400px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  color: white;
-  animation: fadeIn 0.8s ease-out;
-}
+// 🎨 DESIGN TOKENS
+$bg-dark: var(--bg-deep);
+$bg-accent: #0b1220;
+$bg-card: var(--bg-card);
+$primary: var(--neon-cyan);
+$secondary: var(--neon-blue);
+$accent-purple: var(--neon-purple);
+$text-dim: var(--text-secondary);
+$glass-border: var(--border-glass);
+$font-main: 'Inter', sans-serif;
+$font-title: 'Orbitron', sans-serif;
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 30px;
-  
-  .logo { margin-bottom: 15px; }
-  h1 { font-size: 26px; font-weight: 800; margin: 0; color: #9c27b0; letter-spacing: 2px; }
-  p { font-size: 14px; color: rgba(255, 255, 255, 0.5); margin: 5px 0 0; text-transform: uppercase; }
-}
-
-.input-group {
-  margin-bottom: 25px;
-  label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: rgba(255, 255, 255, 0.7); letter-spacing: 1px; }
-}
-
-.cyber-input {
+:host {
+  display: block;
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 14px 16px;
-  color: white;
-  transition: all 0.3s;
-  font-size: 14px;
-  
-  &:focus {
-    outline: none;
-    border-color: #9c27b0;
-    background: rgba(156, 39, 176, 0.05);
-    box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
-  }
-
-  &::placeholder { color: rgba(255, 255, 255, 0.2); }
+  height: 100vh;
+  overflow: hidden;
+  background: $bg-dark;
+  color: #fff;
+  font-family: $font-main;
 }
 
-.cyber-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 8px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
-  border: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  
-  &.primary {
-    background: #9c27b0;
-    color: white;
-    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
-    &:hover:not(:disabled) { background: #ba2dd4; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(156, 39, 176, 0.6); }
-  }
-  
-  &.secondary {
-    background: transparent;
-    border: 1px solid #9c27b0;
-    color: #9c27b0;
-    &:hover:not(:disabled) { background: rgba(156, 39, 176, 0.1); transform: translateY(-2px); }
-  }
-  
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-}
-
-.divider {
-  text-align: center;
-  margin: 25px 0;
+.ultra-premium-login {
   position: relative;
-  
-  &::before { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: rgba(255, 255, 255, 0.1); }
-  span { background: #1e1e2f; padding: 0 15px; position: relative; font-size: 11px; font-weight: 800; color: rgba(255, 255, 255, 0.75); letter-spacing: 1px; }
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.error-msg { color: #ff5252; font-size: 13px; text-align: center; margin-top: 15px; background: rgba(255, 82, 82, 0.1); padding: 10px; border-radius: 6px; }
-.success-msg { color: #4caf50; font-size: 13px; text-align: center; margin-top: 15px; background: rgba(76, 175, 80, 0.1); padding: 10px; border-radius: 6px; }
+// 🌌 BACKGROUND ENGINE
+.bg-engine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, $bg-accent, $bg-dark);
 
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s linear infinite;
+  .cyber-grid {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background-image:
+      linear-gradient($glass-border 1px, transparent 1px),
+      linear-gradient(90deg, $glass-border 1px, transparent 1px);
+    background-size: 50px 50px;
+    transform: perspective(500px) rotateX(60deg);
+    animation: grid-scroll 20s linear infinite;
+    opacity: 0.15;
+  }
+
+  .glow-atmosphere {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 40%, rgba($primary, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba($accent-purple, 0.05) 0%, transparent 50%);
+    filter: blur(80px);
+  }
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.login-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  z-index: 1;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+  }
+}
+
+// 🚀 LEFT SIDE: VISUAL
+.visual-section {
+  flex: 0 0 60%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  border-right: 1px solid rgba($primary, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 1024px) {
+    flex: 0 0 40%;
+    padding: 2rem;
+    border-right: none;
+    border-bottom: 1px solid rgba($primary, 0.1);
+  }
+
+  .hud-overlay {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    right: 2rem;
+    bottom: 2rem;
+    pointer-events: none;
+    opacity: 0.4;
+
+    .corner {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border: 2px solid $primary;
+
+      &.top-left {
+        top: 0;
+        left: 0;
+        border-right: none;
+        border-bottom: none;
+      }
+
+      &.top-right {
+        top: 0;
+        right: 0;
+        border-left: none;
+        border-bottom: none;
+      }
+
+      &.bottom-left {
+        bottom: 0;
+        left: 0;
+        border-right: none;
+        border-top: none;
+      }
+
+      &.bottom-right {
+        bottom: 0;
+        right: 0;
+        border-left: none;
+        border-top: none;
+      }
+    }
+  }
+
+  .branding-group {
+    text-align: center;
+    margin-bottom: 4rem;
+
+    .logo-hologram {
+      font-size: 3rem;
+      color: $primary;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 20px $primary;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .main-title {
+      font-family: $font-title;
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: 10px;
+      margin: 0;
+      background: linear-gradient(to bottom, #fff, #aaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      .accent {
+        color: $primary;
+        -webkit-text-fill-color: $primary;
+        text-shadow: 0 0 15px rgba($primary, 0.5);
+      }
+    }
+
+    .sub-title {
+      font-family: $font-title;
+      font-size: 1.2rem;
+      letter-spacing: 5px;
+      color: $text-dim;
+      margin-top: 0.5rem;
+    }
+
+    .slogan {
+      margin-top: 1.5rem;
+      color: $primary;
+      font-weight: 300;
+      letter-spacing: 2px;
+      opacity: 0.8;
+    }
+  }
+
+  .ai-visual-center {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .scanner-circle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 1px dashed rgba($primary, 0.3);
+      border-radius: 50%;
+      animation: rotate 30s linear infinite;
+    }
+
+    .core-node {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      background: rgba($primary, 0.1);
+      border: 1px solid $primary;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      color: $primary;
+      box-shadow: 0 0 30px rgba($primary, 0.3);
+
+      .pulse-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 1px solid $primary;
+        border-radius: 20px;
+        animation: pulse-out 3s ease-out infinite;
+
+        &:nth-child(2) {
+          animation-delay: 1.5s;
+        }
+      }
+    }
+  }
+
+  .status-indicators {
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+
+    .indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      border-left: 2px solid $primary;
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: $primary;
+        box-shadow: 0 0 10px $primary;
+        animation: blink 2s infinite;
+
+        &.live {
+          background: #ff4d4d;
+          box-shadow: 0 0 10px #ff4d4d;
+        }
+      }
+
+      .label {
+        font-size: 0.7rem;
+        font-family: $font-title;
+        letter-spacing: 1px;
+        color: $text-dim;
+      }
+    }
+  }
+}
+
+// 🔐 RIGHT SIDE: FORM
+.form-section {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+
+  @media (max-width: 1024px) {
+    flex: 1;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 450px;
+    background: $bg-card;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid $glass-border;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+      inset 0 0 20px rgba($primary, 0.05);
+    position: relative;
+    overflow: hidden;
+    animation: card-appear 1s ease-out;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba($primary, 0.03), transparent);
+      transform: rotate(45deg);
+      animation: shine 6s infinite;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+
+      .badge-live {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        background: rgba(255, 77, 77, 0.1);
+        border: 1px solid rgba(255, 77, 77, 0.3);
+        border-radius: 20px;
+        color: #ff4d4d;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+
+        .pulse {
+          width: 6px;
+          height: 6px;
+          background: #ff4d4d;
+          border-radius: 50%;
+          animation: blink 1s infinite;
+        }
+      }
+
+      h3 {
+        font-family: $font-title;
+        font-size: 2rem;
+        margin: 0;
+        letter-spacing: 2px;
+      }
+
+      p {
+        color: $text-dim;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.login-form {
+  .error-msg {
+    background: rgba(255, 77, 77, 0.1);
+    border-left: 3px solid #ff4d4d;
+    padding: 1rem;
+    border-radius: 4px;
+    color: #ff4d4d;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    animation: shake 0.5s;
+  }
+
+  .input-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-size: 0.8rem;
+      color: $text-dim;
+      letter-spacing: 1px;
+
+      i {
+        margin-right: 0.5rem;
+        color: $primary;
+      }
+    }
+
+    .input-wrapper {
+      position: relative;
+
+      input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s;
+        box-sizing: border-box;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.2);
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $primary;
+          background: rgba(0, 0, 0, 0.5);
+          box-shadow: 0 0 15px rgba($primary, 0.1);
+
+          &+.input-glow {
+            opacity: 1;
+          }
+        }
+      }
+
+      .input-glow {
+        position: absolute;
+        inset: -1px;
+        border-radius: 12px;
+        background: linear-gradient(45deg, $primary, $secondary);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s;
+        filter: blur(2px);
+      }
+    }
+  }
+
+  .btn-signin {
+    width: 100%;
+    height: 55px;
+    background: linear-gradient(90deg, $primary, $secondary);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 20px rgba($primary, 0.2);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba($primary, 0.4);
+      filter: brightness(1.1);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.face-login-divider {
+  display: flex;
+  align-items: center;
+  margin: 2.5rem 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  span {
+    padding: 0 1rem;
+    font-size: 0.7rem;
+    color: $text-dim;
+    letter-spacing: 2px;
+  }
+}
+
+.face-login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+
+  .biometric-visual {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border: 1px solid rgba($primary, 0.2);
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+    .face-frame {
+      font-size: 2.5rem;
+      color: rgba($primary, 0.5);
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: $primary;
+      box-shadow: 0 0 15px $primary;
+      animation: scan 3s ease-in-out infinite;
+    }
+
+    .radar-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 1px solid $primary;
+      border-radius: 50%;
+      animation: pulse-out 2s infinite;
+    }
+  }
+
+  .btn-face {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba($primary, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    color: $primary;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      background: rgba($primary, 0.1);
+      border-color: $primary;
+      box-shadow: 0 0 20px rgba($primary, 0.1);
+    }
+
+    .shimmer {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shine-btn 3s infinite;
+    }
+  }
+}
+
+.card-footer {
+  margin-top: 3rem;
+  text-align: center;
+
+  p {
+    font-size: 0.6rem;
+    color: $text-dim;
+    letter-spacing: 1px;
+  }
+}
+
+// 🎬 ANIMATIONS
+@keyframes grid-scroll {
+  from {
+    transform: perspective(500px) rotateX(60deg) translateY(0);
+  }
+
+  to {
+    transform: perspective(500px) rotateX(60deg) translateY(50px);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes pulse-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes scan {
+
+  0%,
+  100% {
+    top: 0;
+  }
+
+  50% {
+    top: 100%;
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+
+  20% {
+    left: 100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes shine-btn {
+  0% {
+    left: -100%;
+  }
+
+  50%,
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}

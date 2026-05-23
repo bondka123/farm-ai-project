@@ -37,10 +37,10 @@ public class User {
     // =========================
     // 🔥 IA / SYSTEM
     // =========================
-    private boolean faceRegistered = false;
+    private Boolean faceRegistered = false;
 
     // 🔥 activation compte (viewer)
-    private boolean enabled = true;
+    private Boolean enabled = true;
 
     private String activationToken;
 
@@ -71,9 +71,9 @@ public class User {
 
     public Role getRole() { return role; }
 
-    public boolean isFaceRegistered() { return faceRegistered; }
+    public Boolean isFaceRegistered() { return faceRegistered; }
 
-    public boolean isEnabled() { return enabled; }
+    public Boolean isEnabled() { return enabled; }
 
     public String getActivationToken() { return activationToken; }
 
@@ -98,9 +98,9 @@ public class User {
 
     public void setRole(Role role) { this.role = role; }
 
-    public void setFaceRegistered(boolean faceRegistered) { this.faceRegistered = faceRegistered; }
+    public void setFaceRegistered(Boolean faceRegistered) { this.faceRegistered = faceRegistered; }
 
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 
     public void setActivationToken(String activationToken) { this.activationToken = activationToken; }
 

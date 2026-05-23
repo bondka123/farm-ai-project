@@ -24,6 +24,20 @@ export class CamerasComponent implements OnInit, OnDestroy {
 
   editMode = false;
   editId?: number;
+  showModal = false;
+
+  openModal() {
+    this.editMode = false;
+    this.resetForm();
+    this.showModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+    document.body.classList.remove('modal-open');
+  }
 
   refreshSub?: Subscription; // 🔥 REFRESH
 
@@ -115,6 +129,7 @@ export class CamerasComponent implements OnInit, OnDestroy {
 
     this.editMode = true;
     this.editId = c.id;
+    this.showModal = true;
   }
 
   // =========================
@@ -138,6 +153,8 @@ export class CamerasComponent implements OnInit, OnDestroy {
       this.cameraService.update(this.editId, payload)
         .subscribe(() => {
           alert("Camera modifiée ✅");
+          this.showModal = false;
+          document.body.classList.remove('modal-open');
           this.resetForm();
           this.loadCameras();
         });
@@ -147,6 +164,8 @@ export class CamerasComponent implements OnInit, OnDestroy {
       this.cameraService.create(payload)
         .subscribe(() => {
           alert("Camera ajoutée ✅");
+          this.showModal = false;
+          document.body.classList.remove('modal-open');
           this.resetForm();
           this.loadCameras();
         });
@@ -272,3 +291,4 @@ export class CamerasComponent implements OnInit, OnDestroy {
     }
   }
 }
+

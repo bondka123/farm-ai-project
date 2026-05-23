@@ -28,6 +28,29 @@ export class SettingsComponent implements OnInit {
   message = '';
   isError = false;
   cameraStatus = '';
+  
+  showProfileModal = false;
+  showPasswordModal = false;
+
+  openProfileModal() {
+    this.showProfileModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeProfileModal() {
+    this.showProfileModal = false;
+    document.body.classList.remove('modal-open');
+  }
+
+  openPasswordModal() {
+    this.showPasswordModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closePasswordModal() {
+    this.showPasswordModal = false;
+    document.body.classList.remove('modal-open');
+  }
 
   constructor(
     private userService: UserService,
@@ -104,6 +127,8 @@ export class SettingsComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.showMessage('Profil mis à jour avec succès ✅', false);
+        this.showProfileModal = false;
+        document.body.classList.remove('modal-open');
       },
       error: () => {
         this.loading = false;
@@ -123,6 +148,8 @@ export class SettingsComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.showMessage('Mot de passe mis à jour ✅', false);
+        this.showPasswordModal = false;
+        document.body.classList.remove('modal-open');
         this.passwords = { oldPassword: '', newPassword: '', confirmPassword: '' };
       },
       error: () => {
@@ -138,4 +165,5 @@ export class SettingsComponent implements OnInit {
     setTimeout(() => this.message = '', 3000);
   }
 }
+
 

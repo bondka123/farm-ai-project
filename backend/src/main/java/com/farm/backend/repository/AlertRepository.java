@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     Optional<Alert> findFirstByUniqueHashAndResolvedFalseOrderByTimestampDesc(String uniqueHash);
     List<Alert> findByDepartmentIdOrderByTimestampDesc(Long departmentId);
+    void deleteByCameraId(Long cameraId);
 }

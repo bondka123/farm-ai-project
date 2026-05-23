@@ -15,6 +15,20 @@ export class DepartmentsComponent implements OnInit {
 
   editMode = false;
   editId: number | null = null;
+  showModal = false;
+
+  openModal() {
+    this.editMode = false;
+    this.department = this.resetForm();
+    this.showModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeModal() {
+    this.showModal = false;
+    document.body.classList.remove('modal-open');
+    this.reset();
+  }
 
   constructor(
     private service: DepartmentService,
@@ -68,12 +82,16 @@ export class DepartmentsComponent implements OnInit {
     if (this.editMode) {
       this.service.update(this.editId!, payload).subscribe(() => {
         alert('Updated');
+        this.showModal = false;
+        document.body.classList.remove('modal-open');
         this.loadDepartments();
         this.reset();
       });
     } else {
       this.service.create(payload).subscribe(() => {
         alert('Added');
+        this.showModal = false;
+        document.body.classList.remove('modal-open');
         this.loadDepartments();
         this.reset();
       });
@@ -93,6 +111,8 @@ export class DepartmentsComponent implements OnInit {
 
     this.editMode = true;
     this.editId = dep.id;
+    this.showModal = true;
+    document.body.classList.add('modal-open');
   }
 
   delete(id: number) {
@@ -108,6 +128,7 @@ export class DepartmentsComponent implements OnInit {
     this.department = this.resetForm();
     this.editMode = false;
     this.editId = null;
+    document.body.classList.remove('modal-open');
   }
 
   resetForm() {
@@ -126,3 +147,4 @@ export class DepartmentsComponent implements OnInit {
     return Number(dep.doctors || 0) + Number(dep.electricians || 0) + Number(dep.workers || 0);
   }
 }
+

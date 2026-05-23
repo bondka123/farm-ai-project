@@ -14,8 +14,22 @@ export class ManagersComponent implements OnInit {
 
   isEdit = false;
   loading = false;
+  showModal = false;
 
   constructor(private service: ManagerService) {}
+
+  openModal() {
+    this.isEdit = false;
+    this.manager = this.resetForm();
+    this.showModal = true;
+    document.body.classList.add('modal-open');
+  }
+
+  closeModal() {
+    this.showModal = false;
+    document.body.classList.remove('modal-open');
+    this.afterSave();
+  }
 
   ngOnInit(): void {
     this.loadManagers();
@@ -56,6 +70,7 @@ export class ManagersComponent implements OnInit {
       this.service.update(this.manager.id, this.manager).subscribe({
         next: () => {
           alert("Modifié ✅");
+          this.showModal = false;
           this.afterSave();
         },
         error: (err) => {
@@ -70,15 +85,17 @@ export class ManagersComponent implements OnInit {
       this.service.create(this.manager).subscribe({
         next: () => {
           alert("Créé ✅");
+          this.showModal = false;
           this.afterSave();
         },
         error: (err) => {
           console.error(err);
-
+          const msg = err.error?.message || "Erreur création ❌";
+          
           if (err.status === 403) {
             alert("ADMIN requis ❌");
           } else {
-            alert("Erreur création ❌");
+            alert(msg);
           }
         }
       });
@@ -92,6 +109,8 @@ export class ManagersComponent implements OnInit {
   edit(m: Manager) {
     this.manager = { ...m };
     this.isEdit = true;
+    this.showModal = true;
+    document.body.classList.add('modal-open');
   }
 
   // =========================
@@ -131,6 +150,7 @@ export class ManagersComponent implements OnInit {
   afterSave() {
     this.manager = this.resetForm();
     this.isEdit = false;
+    document.body.classList.remove('modal-open');
     this.loadManagers();
   }
 }
